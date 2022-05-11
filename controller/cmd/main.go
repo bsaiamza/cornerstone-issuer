@@ -11,9 +11,7 @@ import (
 func main() {
 	config := config.GetConfig()
 
-	host := config.GetServerHost()
-	port := config.GetServerPort()
-	serverAddress := host + ":" + port
+	serverAddress := config.GetServerAddress()
 
 	client := acapy.NewClient(config.GetAcapyURL())
 
@@ -29,8 +27,8 @@ func main() {
 		log.ServerInfo.Print("		**ENV VARS**")
 		log.ServerInfo.Print("	ACAPY_URL: ", config.GetAcapyURL())
 		log.ServerInfo.Print("	CLIENT_URL: ", config.GetClientURL())
-		log.ServerInfo.Print("	SERVER_HOST: ", config.GetServerHost(),)
-		log.ServerInfo.Print("	SERVER_PORT: ", config.GetServerPort(),)
+		log.ServerInfo.Print("	SERVER_ADDRESS: ", config.GetServerAddress())
+		log.ServerInfo.Print("	API_BASE_URL: ", config.GetAPIBaseURL())
 		log.ServerInfo.Print("-------------------------------------------------")
 		log.ServerInfo.Print("")
 		log.ServerInfo.Printf("Server started on: %s", serverAddress)

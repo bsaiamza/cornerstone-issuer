@@ -22,9 +22,7 @@ venv/
 
 # Cornerstone Issuer
 # Files
-*.log
+controller/*.log
 
 # Folders
-.vscode
-bin
-web
+controller/bin

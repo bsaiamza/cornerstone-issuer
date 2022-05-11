@@ -45,12 +45,12 @@ func (c *Config) GetClientURL() string {
 	return getEnv("CLIENT_URL")
 }
 
-// GetServerHost returns the server host.
-func (c *Config) GetServerHost() string {
-	return getEnv("SERVER_HOST")
+// GetServerAddress returns the server address.
+func (c *Config) GetServerAddress() string {
+	return getEnv("SERVER_ADDRESS")
 }
 
-// GetServerPort returns the server port.
-func (c *Config) GetServerPort() string {
-	return getEnv("SERVER_PORT")
+// GetServerBaseURL returns the api base url.
+func (c *Config) GetAPIBaseURL() string {
+	return getEnv("API_BASE_URL")
 }

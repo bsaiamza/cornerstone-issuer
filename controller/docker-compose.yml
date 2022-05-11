@@ -11,8 +11,8 @@ services:
     environment:
       ACAPY_URL: "http://0.0.0.0:8001"
       CLIENT_URL: "http://localhost:3000"
-      SERVER_HOST: "0.0.0.0"
-      SERVER_PORT: "8180"
+      SERVER_HOST: "0.0.0.0:8180"
+      API_BASE_URL: "/api/v1"
 
   cornerstone_issuer_agent:
     image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.3
