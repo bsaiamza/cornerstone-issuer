@@ -6,7 +6,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: cornerstone-issuer-agent-ingress
+  name: cornerstone-issuer-ingress
   namespace: cornerstone-issuer
   annotations:
     kubernetes.io/ingress.class: alb
@@ -21,6 +21,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: cornerstone-issuer-agent
+            name: cornerstone-issuer
             port:
               number: 8180
