@@ -1,0 +1,25 @@
+# 
+# ./manage start 172.16.10.29 "LEDGER_INSTANCE_NAME=My Iamza - Sandbox 0.5" WEB_SERVER_HOST_PORT=9000 
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cornerstone-issuer-agent-configmap
+  namespace: cornerstone-issuer-agent
+data:
+    # Server Variables
+    ACAPY_ADMIN_INSECURE_MODE: "true"
+    ACAPY_AUTO_PROVISION: "true"
+    ACAPY_DEBUG_CONNECTIONS: "true"
+    ACAPY_ENDPOINT: "http://0.0.0.0:8000"
+    ACAPY_LABEL: "Cornerstone Issuer"
+    ACAPY_GENESIS_URL: "https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_builder_genesis"
+    ACAPY_WALLET_NAME: "issuer_wallet"
+    ACAPY_WALLET_KEY: "issuer_secret"
+    ACAPY_WALLET_TYPE: "indy"
+    ACAPY_WALLET_SEED: "+SLRmwIo1PtxNJjXx5LcSYk59mJrJIHf"       # Register https://selfserve.sovrin.org
+    ACAPY_LOG_LEVEL: "info"
+    ADMIN_PORT: "8001"  # http
+    AGENT_PORT: "8000"  # http
+

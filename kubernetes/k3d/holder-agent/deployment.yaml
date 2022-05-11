@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cornerstone-holder-agent
+  namespace: cornerstone-holder-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cornerstone-holder-agent
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: cornerstone-holder-agent
+    spec:
+      containers:
+      - name: cornerstone-holder-agent
+        image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.3
+        imagePullPolicy: Always
+        ports:
+        - name: agnt-admin-port
+          containerPort: 11001
+          protocol: TCP
+        - name: agnt-http-port
+          containerPort: 11000
+          protocol: TCP
+        envFrom:
+          - configMapRef:
+              name: cornerstone-holder-agent-configmap
+        command: [
+            "bash",
+            "-c",
+            "aca-py start \
+            --admin '0.0.0.0' 11001 \
+            --inbound-transport http '0.0.0.0' 11000 \
+            --outbound-transport http ",
+          ]
+        

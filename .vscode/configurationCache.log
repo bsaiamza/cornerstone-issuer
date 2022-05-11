@@ -1,0 +1,1 @@
+{"buildTargets":["docker-down","docker-start","docker-stop","docker-up","fmt","lint","run","test"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

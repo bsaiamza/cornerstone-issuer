@@ -1,0 +1,47 @@
+# apiVersion: networking.k8s.io/v1beta1 # for k3s < v1.19
+# https://k3d.io/v5.0.1/usage/exposing_services/
+
+# https://www.eksworkshop.com/beginner/130_exposing-service/ingress_controller_alb/
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cornerstone-issuer-agent-ingress
+  namespace: cornerstone-issuer
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    ingress.kubernetes.io/ssl-redirect: "false"    
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /agent
+        pathType: Prefix
+        backend:
+          service:
+            name: cornerstone-issuer-agent
+            port:
+              number: 8000
+      - path: /agentadmin
+        pathType: Prefix
+        backend:
+          service:
+            name: cornerstone-issuer-agent
+            port:
+              number: 8001
+      - path: /server
+        pathType: Prefix
+        backend:
+          service:
+            name: cornerstone-issuer-agent
+            port:
+              number: 8180
+      - path: /client
+        pathType: Prefix
+        backend:
+          service:
+            name: cornerstone-issuer-agent
+            port:
+              number: 3000
