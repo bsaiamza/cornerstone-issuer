@@ -17,31 +17,10 @@ spec:
   rules:
   - http:
       paths:
-      - path: /agent
-        pathType: Prefix
-        backend:
-          service:
-            name: cornerstone-issuer-agent
-            port:
-              number: 8000
-      - path: /agentadmin
-        pathType: Prefix
-        backend:
-          service:
-            name: cornerstone-issuer-agent
-            port:
-              number: 8001
-      - path: /server
+      - path: /api/v1/cornerstone/issuer
         pathType: Prefix
         backend:
           service:
             name: cornerstone-issuer-agent
             port:
               number: 8180
-      - path: /client
-        pathType: Prefix
-        backend:
-          service:
-            name: cornerstone-issuer-agent
-            port:
-              number: 3000

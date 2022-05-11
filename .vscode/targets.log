@@ -6,11 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
-make: *** No rule to make target `all'.  Stop.
 
-
-# Make data base, printed on Wed May 11 08:16:55 2022
+# Make data base, printed on Wed May 11 08:27:34 2022
 
 # Variables
 
@@ -29,7 +26,6 @@ VSCODE_LOG_NATIVE = false
 # environment
 CYANB = \033[0;46m
 # automatic
- 
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
 PLATFORMIO_IDE = 2.4.3
@@ -68,11 +64,14 @@ VAGRANT_HOME = /Users/george/.vagrant.d/boxes
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
+ 
+make: *** No rule to make target `all'.  Stop.
+
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 INVERT = \033[7m
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/hr/8xcqn0yx5s92ksdx_8tb10l00000gn/T/vscode-ipc-f14869ef-4225-4ab1-92eb-bc752232b443.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/hr/8xcqn0yx5s92ksdx_8tb10l00000gn/T/vscode-ipc-f3df46e8-5c12-46fe-9601-95e0c7802948.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -130,7 +129,7 @@ VSCODE_CODE_CACHE_PATH = /Users/george/Library/Application Support/Code/CachedDa
 # environment
 LOGNAME = george
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 LGRAY = \033[0;37m
 # environment
@@ -138,7 +137,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
-PLATFORMIO_PATH = /Users/george/.platformio/penv/bin:/Users/george/.platformio/penv:/Users/george/.platformio/python3/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/Users/george/Desktop/ProjectsCommon/confluent-6.2.0/bin:/Users/george/go/bin
+PLATFORMIO_PATH = /Users/george/.platformio/python3/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/Users/george/Desktop/ProjectsCommon/confluent-6.2.0/bin:/Users/george/go/bin
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -162,7 +161,6 @@ USER = george
 # environment
 PURPLEB = \033[0;45m
 # automatic
- 
 %D = $(patsubst %/,%,$(dir $%))
 # default
 MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
@@ -296,11 +294,10 @@ docker-start:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 18:08:54
+#  Last modified 2022-05-11 08:23:23
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
- 
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 docker-down:
@@ -337,7 +334,7 @@ build_docker:
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 30):
 	#docker build -t georgelza/cornerstone-issuer:0.0.2 .
-	docker build -t cornerstone-issuer:0.0.2 .
+	docker build -t cornerstone-issuer .
 	docker tag cornerstone-issuer:0.0.2 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.2
 	
 
@@ -361,6 +358,7 @@ fmt:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
+ 
 #  commands to execute (from `Makefile', line 18):
 	go fmt ./...
 	
@@ -396,8 +394,7 @@ docker-stop:
 # # of strcache buffers: 1
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
- 
 
-# Finished Make data base on Wed May 11 08:16:55 2022
+# Finished Make data base on Wed May 11 08:27:34 2022
 
  
