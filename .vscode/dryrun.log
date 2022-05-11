@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/george/Desktop/ProjectsCommon/bsaiamza/cornerstone_issuer'
+make: Leaving directory `/Users/george/Desktop/ProjectsCommon/bsaiamza/cornerstone_issuer'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
