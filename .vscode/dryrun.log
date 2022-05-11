@@ -1,5 +1,6 @@
-make: Entering directory '/home/imtiyaaz/Documents/00_dev/DI_Workspace/Cornerstone_Credential/cornerstone_issuer'
-docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' down
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/george/Desktop/ProjectsCommon/bsaiamza/cornerstone_issuer'
+# docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' down
 docker-compose -f 'docker-compose.yml'  -p 'cornerstone_issuer' down
-make: Leaving directory '/home/imtiyaaz/Documents/00_dev/DI_Workspace/Cornerstone_Credential/cornerstone_issuer'
+make: Leaving directory `/Users/george/Desktop/ProjectsCommon/bsaiamza/cornerstone_issuer'
  

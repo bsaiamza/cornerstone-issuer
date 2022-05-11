@@ -1,227 +1,241 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
+# GNU Make 3.81
+# Copyright (C) 2006  Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.
+# There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
-# GNU Make 4.2.1
-# Built for x86_64-pc-linux-gnu
-# Copyright (C) 1988-2016 Free Software Foundation, Inc.
-# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-# This is free software: you are free to change and redistribute it.
-# There is NO WARRANTY, to the extent permitted by law.
+# This program built for i386-apple-darwin11.3.0
+ 
+make: *** No rule to make target `all'.  Stop.
 
-# Make data base, printed on Mon May  9 14:28:45 2022
+
+# Make data base, printed on Wed May 11 08:16:55 2022
 
 # Variables
 
-# automatic
-<D = $(patsubst %/,%,$(dir $<))
+# environment
+LRED = \033[1;31m
 # automatic
 ?F = $(notdir $?)
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
 # environment
-DESKTOP_SESSION = cinnamon
-# default
-.SHELLFLAGS := -c
+BLACKB = \033[0;40m
 # environment
-XDG_SESSION_CLASS = user
-# environment
-XDG_SESSION_TYPE = x11
+GRAY = \033[1;30m
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
-GTK3_MODULES = xapp-gtk3-module
+CYANB = \033[0;46m
 # automatic
+ 
 ?D = $(patsubst %/,%,$(dir $?))
+# environment
+PLATFORMIO_IDE = 2.4.3
+# environment
+YELLOWB = \033[0;43m
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
-# environment
-XAUTHORITY = /home/imtiyaaz/.Xauthority
-# environment
-GDMSESSION = cinnamon
-# default
-MAKE_VERSION := 4.2.1
-# makefile
-CURDIR := /home/imtiyaaz/Documents/00_dev/DI_Workspace/Cornerstone_Credential/cornerstone_issuer
-# makefile
-SHELL = /bin/sh
-# environment
-GDM_LANG = en_ZA
-# environment
-VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupport":true}
-# environment
-_ = /usr/share/code/code
-# environment
-XDG_CONFIG_DIRS = /etc/xdg/xdg-cinnamon:/etc/xdg
-# environment
-GTK_OVERLAY_SCROLLING = 1
-# makefile (from 'Makefile', line 1)
-MAKEFILE_LIST :=  Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
-# 'override' directive
-GNUMAKEFLAGS := 
+GREEN = \033[0;32m
 # environment
-XDG_DATA_DIRS = /usr/share/cinnamon:/usr/share/gnome:/home/imtiyaaz/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share:/var/lib/snapd/desktop
+PINK = \033[1;35m
+# makefile
+SHELL = /bin/sh
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# environment
+LBC_CHART_VERSION = 1.4.1
+# environment
+_ = /usr/bin/make
+# environment
+BLUE = \033[0;34m
+# environment
+pink = \033[35m
+# environment
+UNDERLINE = \033[4m
+# makefile (from `Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# environment
+GREYB = \033[0;47m
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
-DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
+VAGRANT_HOME = /Users/george/.vagrant.d/boxes
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-LESSOPEN = | /usr/bin/lesspipe %s
+__CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_CWD = /home/imtiyaaz
+INVERT = \033[7m
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/hr/8xcqn0yx5s92ksdx_8tb10l00000gn/T/vscode-ipc-f14869ef-4225-4ab1-92eb-bc752232b443.sock
+# environment
+VSCODE_CWD = /
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
-XDG_SESSION_PATH = /org/freedesktop/DisplayManager/Session0
-# default
-MAKE_HOST := x86_64-pc-linux-gnu
+green = \033[32m
 # environment
-PATH = /usr/local/go-1.18.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/imtiyaaz/Documents/apps/go/bin
+red = \033[31m
 # environment
-GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
+NO_PROXY = 127.0.0.1
 # environment
-SESSION_MANAGER = local/imtiyaaz-HP-ZBook-Workstation:@/tmp/.ICE-unix/5445,unix/imtiyaaz-HP-ZBook-Workstation:/tmp/.ICE-unix/5445
+BOLD = \033[1m
+# makefile
+CURDIR := /Users/george/Desktop/ProjectsCommon/bsaiamza/cornerstone_issuer
 # environment
-XDG_RUNTIME_DIR = /run/user/1000
-# environment
-GOPATH = /home/imtiyaaz/Documents/apps/go
+GOPATH = /Users/george/go
 # environment
 VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
+# environment
+LCYAN = \033[1;36m
+# environment
+CONFLUENT_HOME = /Users/george/Desktop/ProjectsCommon/confluent-6.2.0
 # default
-.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
+.FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-XDG_GREETER_DATA_DIR = /var/lib/lightdm-data/imtiyaaz
+PURPLE = \033[0;35m
 # environment
-LS_COLORS = 
+GREENB = \033[0;42m
 # environment
-XDG_SESSION_DESKTOP = cinnamon
-# environment
-SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
-# environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 8782
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.zHSU9MdLV6/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
-GOBIN = /home/imtiyaaz/Documents/apps/go/bin
+TNS_ADMIN = /opt/oracle/instantclient_12_2/network/admin
 # environment
-DISPLAY = :0
+LBLUE = \033[1;34m
+# environment
+LYELLOW = \033[1;33m
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-PWD = /home/imtiyaaz/Documents/00_dev/DI_Workspace/Cornerstone_Credential/cornerstone_issuer
+ACCOUNT_ID = 149875424875
 # environment
-QT_QPA_PLATFORMTHEME = qt5ct
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+GOMODCACHE = /Users/george/go/pkg/mod
+# environment
+HOME = /Users/george
 # default
-.LOADED := 
+MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
 # environment
-XDG_SEAT = seat0
+VSCODE_CODE_CACHE_PATH = /Users/george/Library/Application Support/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
 # environment
-SSH_AGENT_PID = 5530
+LOGNAME = george
 # environment
-ORIGINAL_XDG_CURRENT_DESKTOP = X-Cinnamon
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
-GTK_MODULES = gail:atk-bridge
-# environment
-GOMODCACHE = /home/imtiyaaz/Documents/apps/go/pkg/mod
-# environment
-HOME = /home/imtiyaaz
-# environment
-LESSCLOSE = /usr/bin/lesspipe %s %s
-# environment
-VSCODE_CODE_CACHE_PATH = /home/imtiyaaz/.config/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
-# environment
-LOGNAME = imtiyaaz
-# environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+LGRAY = \033[0;37m
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
-# environment
-GNOME_DESKTOP_SESSION_ID = this-is-deprecated
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
-XDG_VTNR = 7
-# environment
-MAKELEVEL := 0
+PLATFORMIO_PATH = /Users/george/.platformio/penv/bin:/Users/george/.platformio/penv:/Users/george/.platformio/python3/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/Users/george/Desktop/ProjectsCommon/confluent-6.2.0/bin:/Users/george/go/bin
 # default
 MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
-SHLVL = 0
+PATH = /Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/Users/george/Desktop/ProjectsCommon/confluent-6.2.0/bin:/Users/george/go/bin
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-94cefe2d-7df4-432b-a297-156730403c4f.sock
+LGREEN = \033[1;32m
 # environment
-XDG_SESSION_ID = c2
+SHLVL = 2
 # environment
-USER = imtiyaaz
+WHITE = \033[1;37m
+# environment
+XPC_FLAGS = 0x0
+# default
+MAKE_VERSION := 3.81
+# environment
+USER = george
 # makefile
 .DEFAULT_GOAL := docker-down
 # environment
-XDG_CURRENT_DESKTOP = X-Cinnamon
-# environment
-GOROOT = /usr/local/go-1.18.1
+PURPLEB = \033[0;45m
 # automatic
+ 
 %D = $(patsubst %/,%,$(dir $%))
 # default
-MAKE_COMMAND := make
+MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
 # default
 .VARIABLES := 
+# environment
+TMPDIR = /var/folders/hr/8xcqn0yx5s92ksdx_8tb10l00000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-LANGUAGE = en_ZA:en
+VSCODE_IPC_HOOK = /Users/george/Library/Application Support/Code/1.67.0-main.sock
 # environment
-XDG_SEAT_PATH = /org/freedesktop/DisplayManager/Seat0
-# environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-27c7c6da-1.67.0-main.sock
+RED = \033[0;31m
 # makefile
-MAKEFLAGS = pqrR
+MAKEFLAGS = Rrqp
 # environment
-MFLAGS = -pqrR
+MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
+# environment
+BLACK = \033[0;30m
+# environment
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.8812041284.8812041290
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
-GDK_BACKEND = x11
+YELLOW = \033[40;33m
+# environment
+CYAN = \033[0;36m
+# environment
+normal = \033[00m
 # automatic
 +F = $(notdir $+)
 # environment
-CINNAMON_VERSION = 5.2.7
+BLUEB = \033[0;44m
 # environment
-QT_ACCESSIBILITY = 1
+DISPLAY = /private/tmp/com.apple.launchd.8HwWX3Qp6Z/org.macosforge.xquartz:0
+# environment
+__CF_USER_TEXT_ENCODING = 0x1F5:0x0:0x0
+# environment
+COMMAND_MODE = unix2003
 # default
 MAKEFILES := 
 # automatic
 <F = $(notdir $<)
 # environment
-LC_ALL = C
+PLATFORMIO_CALLER = vscode
 # environment
-GJS_DEBUG_TOPICS = JS ERROR;JS LOG
+cyan = \033[36m
+# environment
+PWD = /Users/george/Desktop/ProjectsCommon/bsaiamza/cornerstone_issuer
+# environment
+LC_ALL = C
 # automatic
 ^F = $(notdir $^)
 # default
 SUFFIXES := 
 # environment
-CHROME_DESKTOP = code-url-handler.desktop
+LBC_VERSION = v2.4.1
 # default
-.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+.INCLUDE_DIRS = /usr/local/include
 # environment
-GJS_DEBUG_OUTPUT = stderr
-# default
-.RECIPEPREFIX := 
+AWS_REGION = af-south-1
+# environment
+MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 8782
+REDB = \033[0;41m
+# environment
+VSCODE_PID = 1079
 # variable set hash-table stats:
-# Load=104/1024=10%, Rehash=0, Collisions=8/129=6%
+# Load=109/1024=11%, Rehash=0, Collisions=11/133=8%
 
 # Pattern-specific Variable Values
 
@@ -229,9 +243,9 @@ VSCODE_PID = 8782
 
 # Directories
 
-# . (device 66309, inode 19795389): 15 files, no impossibilities.
+# . (device 16777220, inode 8812065467): 19 files, no impossibilities.
 
-# 15 files, no impossibilities in 1 directories.
+# 19 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -241,10 +255,12 @@ VSCODE_PID = 8782
 
 # Not a target:
 all:
-#  Command line target.
+#  Command-line target.
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has not been updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 .PHONY: docker-down docker-start docker-stop docker-up fmt lint run test
 #  Implicit rule search has not been done.
@@ -256,33 +272,44 @@ docker-up:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 14):
-	docker-compose -f "third_party/acapy/docker-compose.yml" up -d --build
-	docker-compose -f "docker-compose.yml" up -d --build
+#  commands to execute (from `Makefile', line 14):
+	# docker-compose -f "third_party/acapy/docker-compose.yml" up -d --build
+	docker-compose -f "docker-compose.yml" up -d --build --remove-orphans
+	
 
 docker-start:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 6):
-	docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' start
+#  commands to execute (from `Makefile', line 6):
+	# docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' start
 	docker-compose -f 'docker-compose.yml'  -p 'cornerstone_issuer' start
+	
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-09 10:47:58.660488005
+#  Last modified 2022-05-10 18:08:54
 #  File has been updated.
 #  Successfully updated.
+# variable set hash-table stats:
+ 
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 docker-down:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 2):
-	docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' down
+#  commands to execute (from `Makefile', line 2):
+	# docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' down
 	docker-compose -f 'docker-compose.yml'  -p 'cornerstone_issuer' down
 	
 
@@ -291,8 +318,28 @@ test:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 27):
+#  commands to execute (from `Makefile', line 27):
 	go test -v -cover ./...
+	
+
+push_docker:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 35):
+	#docker push georgelza/cornerstone-issuer:0.0.2
+	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.2
+	
+
+build_docker:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 30):
+	#docker build -t georgelza/cornerstone-issuer:0.0.2 .
+	docker build -t cornerstone-issuer:0.0.2 .
+	docker tag cornerstone-issuer:0.0.2 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.2
+	
 
 # Not a target:
 .DEFAULT:
@@ -301,12 +348,11 @@ test:
 #  File has not been updated.
 
 run:
- 
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 24):
+#  commands to execute (from `Makefile', line 24):
 	go run cmd/main.go
 	
 
@@ -315,40 +361,43 @@ fmt:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 18):
+#  commands to execute (from `Makefile', line 18):
 	go fmt ./...
+	
 
 lint:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 21):
+#  commands to execute (from `Makefile', line 21):
 	golint ./...
+	
 
 docker-stop:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 10):
-	docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' stop
+#  commands to execute (from `Makefile', line 10):
+	# docker-compose -f 'third_party/acapy/docker-compose.yml'  -p 'acapy' stop
 	docker-compose -f 'docker-compose.yml'  -p 'cornerstone_issuer' stop
+	
 
 # files hash-table stats:
-# Load=13/1024=1%, Rehash=0, Collisions=0/31=0%
+# Load=15/1024=1%, Rehash=0, Collisions=0/35=0%
 # VPATH Search Paths
 
-# No 'vpath' search paths.
+# No `vpath' search paths.
 
-# No general ('VPATH' variable) search path.
+# No general (`VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 29 / storage = 246 B / avg = 8 B
-# current buf: size = 8162 B / used = 246 B / count = 29 / avg = 8 B
+# # of strings in strcache: 1
+# # of strcache buffers: 1
+# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
+# strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
+ 
 
-# strcache performance: lookups = 50 / hit rate = 42%
-# hash-table stats:
-# Load=29/8192=0%, Rehash=0, Collisions=1/50=2%
-# Finished Make data base on Mon May  9 14:28:45 2022
+# Finished Make data base on Wed May 11 08:16:55 2022
 
  
