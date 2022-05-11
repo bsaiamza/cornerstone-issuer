@@ -54,8 +54,3 @@ func (c *Config) GetServerHost() string {
 func (c *Config) GetServerPort() string {
 	return getEnv("SERVER_PORT")
 }
-
-// GetRole returns the role.
-func (c *Config) GetRole() string {
-	return getEnv("ROLE")
-}

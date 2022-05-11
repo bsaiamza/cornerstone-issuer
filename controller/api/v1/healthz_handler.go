@@ -43,16 +43,21 @@ func healthzHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
 
 		alive, err := c.IsAlive()
 		if err != nil {
-			log.Error.Printf("Failed to check ACA-py health: %s", err)
+			log.Error.Printf("Failed to check cornerstone issuer agent health: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
-				"msg":     "Failed to check ACA-py health!",
+				"msg":     "Failed to check cornerstone issuer agent health!",
 				"error":   err.Error(),
 			}
 			json.NewEncoder(w).Encode(res)
 			return
 		}
+
+		if alive {
+			log.Info.Print("Cornerstone issuer agent is healthy!")
+		}
+		log.Info.Print("Cornerstone issuer server is healthy!")
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(alive)
