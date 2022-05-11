@@ -5,9 +5,13 @@ metadata:
   name: cornerstone-issuer-configmap
   namespace: cornerstone-issuer
 data:
-    # Server Variables
+  # acapy variables
     ACAPY_URL: "http://cornerstone-issuer-agent.cornerstone-issuer-agent.svc.cluster.local:8001"       # socket - ?
+    ACAPY_ADMIN_API_KEY: secret
+    # client variables
     CLIENT_URL: "http://cornerstone-issuer-agent.cornerstone-issuer-agent.svc.cluster.local:3000"      # socket
+    # server variables
     SERVER_HOST: "0.0.0.0"
     SERVER_PORT: "8180"                         # http
-
+    SERVER_ADDRESS: 0.0.0.0:8180
+    API_BASE_URL: /api/v1

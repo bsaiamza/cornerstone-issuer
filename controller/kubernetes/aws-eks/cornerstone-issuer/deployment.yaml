@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: cornerstone-issuer
-        image: georgelza/cornerstone-issuer:0.0.2
+        image: 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.2
         imagePullPolicy: Always
         ports:
         - name: server-port

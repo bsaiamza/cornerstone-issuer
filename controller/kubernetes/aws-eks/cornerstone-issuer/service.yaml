@@ -7,7 +7,7 @@ metadata:
 spec:
   type: ClusterIP         # Default type (ClusterIP), NodePort, LoadBalancer
   selector:
-    app: cornerstone-issuer-agent
+    app: cornerstone-issuer
   ports:
     - name: agnt-adm-port
       port: 8001          #Agent Admin port
@@ -22,7 +22,7 @@ spec:
       targetPort: 8180 
       protocol: TCP
 
-# kubectl port-forward service/cornerstone-issuer 8180:8180 -n cnrsissuerp
+# kubectl port-forward service/cornerstone-issuer-agent 8180:8180 -n cornerstone-issuer
 # kubectl port-forward deployment.apps/cornerstone-issuer 8180:8180 -n cnrsissuer
 
 # localhost:8180/ 
