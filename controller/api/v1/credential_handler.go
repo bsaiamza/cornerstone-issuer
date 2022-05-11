@@ -76,75 +76,6 @@ func queryProposalV2Handler(config *config.Config, c *acapy.Client) http.Handler
 	}
 }
 
-func sendProposalV2(config *config.Config, c *acapy.Client) http.HandlerFunc {
-	mdw := []server.Middleware{
-		server.NewLogRequest,
-	}
-
-	return server.ChainMiddleware(sendProposalV2Handler(config, c), mdw...)
-}
-func sendProposalV2Handler(config *config.Config, c *acapy.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		header := w.Header()
-		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
-		header.Add("Access-Control-Allow-Methods", "POST, OPTIONS")
-		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		if r.Method != http.MethodPost {
-			log.Warning.Print("Incorrect request method!")
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			res := server.Res{
-				"success": false,
-				"msg":     "Warning: Incorrect request method!",
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		defer r.Body.Close()
-
-		log.Info.Print("Sending proposal...")
-
-		credExID := r.URL.Query().Get("cred_ex_id")
-
-		var sendProposalRequest models.SendProposalV2Request
-
-		err := json.NewDecoder(r.Body).Decode(&sendProposalRequest)
-		if err != nil {
-			log.Error.Printf("Failed to decode proposal: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
-			res := server.Res{
-				"success": false,
-				"msg":     "Failed to decode proposal: " + err.Error(),
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		proposal, err := c.SendCredentialProposalV2(credExID, sendProposalRequest)
-		if err != nil {
-			log.Error.Printf("Failed to send proposal: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Res{
-				"success": false,
-				"msg":     "Failed to send proposal: " + err.Error(),
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		log.Info.Print("Proposal sent!")
-
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(proposal)
-	}
-}
-
 func sendOfferV2(config *config.Config, c *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
@@ -214,83 +145,14 @@ func sendOfferV2Handler(config *config.Config, c *acapy.Client) http.HandlerFunc
 	}
 }
 
-func sendRequestV2(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func issueCredentialV2(config *config.Config, c *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(sendRequestV2Handler(config, c), mdw...)
+	return server.ChainMiddleware(issueCredentialV2Handler(config, c), mdw...)
 }
-func sendRequestV2Handler(config *config.Config, c *acapy.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		header := w.Header()
-		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
-		header.Add("Access-Control-Allow-Methods", "POST, OPTIONS")
-		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		if r.Method != http.MethodPost {
-			log.Warning.Print("Incorrect request method!")
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			res := server.Res{
-				"success": false,
-				"msg":     "Warning: Incorrect request method!",
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		defer r.Body.Close()
-
-		log.Info.Print("Sending request...")
-
-		credExID := r.URL.Query().Get("cred_ex_id")
-
-		var sendRequestRequest models.SendRequestV2Request
-
-		err := json.NewDecoder(r.Body).Decode(&sendRequestRequest)
-		if err != nil {
-			log.Error.Printf("Failed to decode request: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
-			res := server.Res{
-				"success": false,
-				"msg":     "Failed to decode request: " + err.Error(),
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		request, err := c.SendCredentialRequestV2(credExID, sendRequestRequest)
-		if err != nil {
-			log.Error.Printf("Failed to send request: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Res{
-				"success": false,
-				"msg":     "Failed to send request: " + err.Error(),
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		log.Info.Print("Request sent!")
-
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(request)
-	}
-}
-
-func issueV2(config *config.Config, c *acapy.Client) http.HandlerFunc {
-	mdw := []server.Middleware{
-		server.NewLogRequest,
-	}
-
-	return server.ChainMiddleware(issueV2Handler(config, c), mdw...)
-}
-func issueV2Handler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func issueCredentialV2Handler(config *config.Config, c *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())

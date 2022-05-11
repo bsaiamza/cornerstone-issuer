@@ -21,9 +21,10 @@ venv/
 
 
 # Cornerstone Issuer
-# exclude binaries that
-issuer-kit/controller/bin/issuer-kit_controller
-issuer-kit/controller/bin/issuer-kit_controller.exe
-# Cornerstone Issuer - exclude log files
-issuer-kit/controller/issuer-kit_controller.log
-issuer-kit/controller/issuer-kit_server.log
+# Files
+*.log
+
+# Folders
+.vscode
+bin
+web
