@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cornerstone-issuer-agent
-  namespace: cornerstone-issuer-agent
+  namespace: cornerstone-issuer
   labels:
     app: cornerstone-issuer-agent
 spec:
@@ -41,5 +41,7 @@ spec:
               "aca-py start \
               --admin '0.0.0.0' 8001 \  
               --inbound-transport http '0.0.0.0' 8000 \
-              --outbound-transport http ",]
+              --outbound-transport http 
+              --connections-invite",]
+
         

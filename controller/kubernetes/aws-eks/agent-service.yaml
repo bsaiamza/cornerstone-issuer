@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cornerstone-issuer-agent
-  namespace: cornerstone-issuer-agent
+  namespace: cornerstone-issuer
 spec:
   type: ClusterIP         # Default type (ClusterIP), NodePort, LoadBalancer
   selector:
@@ -19,8 +19,8 @@ spec:
       protocol: TCP
 
 
-# kubectl port-forward service/cornerstone-issuer 8180:8180 -n cnrsissuerp
-# kubectl port-forward deployment.apps/cornerstone-issuer 8180:8180 -n cnrsissuer
+# kubectl port-forward service/cornerstone-issuer-agent 8180:8180 -n cornerstone-issuer
+# kubectl port-forward deployment.apps/cornerstone-issuer-agent 8180:8180 -n cornerstone-issuer
 
 # localhost:8180/ 
 

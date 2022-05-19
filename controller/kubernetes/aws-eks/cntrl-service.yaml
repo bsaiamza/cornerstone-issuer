@@ -22,8 +22,8 @@ spec:
       targetPort: 8180 
       protocol: TCP
 
-# kubectl port-forward service/cornerstone-issuer-agent 8180:8180 -n cornerstone-issuer
-# kubectl port-forward deployment.apps/cornerstone-issuer 8180:8180 -n cnrsissuer
+# kubectl port-forward service/cornerstone-issuer 8180:8180 -n cornerstone-issuer
+# kubectl port-forward deployment.apps/cornerstone-issuer 8180:8180 -n cornerstone-issuer
 
 # localhost:8180/ 
 
