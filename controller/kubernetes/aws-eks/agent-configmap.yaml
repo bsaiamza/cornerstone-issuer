@@ -12,7 +12,7 @@ data:
     ACAPY_ADMIN_INSECURE_MODE: "true"
     ACAPY_AUTO_PROVISION: "true"
     ACAPY_DEBUG_CONNECTIONS: "true"
-    ACAPY_ENDPOINT: "https://issuer.iamza-sandbox.com/"
+    ACAPY_ENDPOINT: "https://issuer-agent.iamza-sandbox.com"
     ACAPY_LABEL: "Iamza Cornerstone Issuer"
     ACAPY_GENESIS_URL: "https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_builder_genesis"
     ACAPY_WALLET_NAME: "issuer_wallet"
@@ -23,14 +23,14 @@ data:
     ACAPY_WALLET_STORAGE_CREDS: "{\"account\":\"iamza\",\"password\":\"test123\",\"admin_account\":\"iamza\",\"admin_password\":\"test123\"}"
     ACAPY_WALLET_SEED: "+SLRmwIo1PtxNJjXx5LcSYk59mJrJIHf"       # Register https://selfserve.sovrin.org
     ACAPY_LOG_LEVEL: "info"
-    ADMIN_PORT: "8001"  # http
-    AGENT_PORT: "8000"  # http
+    ACAPY_ADMIN: "8001"  # http
+    ACAPY_INBOUND_TRANSPORT: "8000"  # http
     ACAPY_INVITE_MULTI_USE: "true"
     ACAPY_AUTO_ACCEPT_INVITES: "true"
     ACAPY_AUTO_ACCEPT_REQUESTS: "true"
     ACAPY_INVITE_LABEL: "IAMZA Cornerstone Credential"
+    ACAPY_IMAGE_URL: "https://iamza-sandbox.s3.af-south-1.amazonaws.com/active.png"
     # Images stored in s3://iamza-sandbox  bucket
     # https://iamza-sandbox.s3.af-south-1.amazonaws.com/black1.png -> active.png
     # https://iamza-sandbox.s3.af-south-1.amazonaws.com/black1.png
     # https://iamza-sandbox.s3.af-south-1.amazonaws.com/white1.png
-    ACAPY_IMAGE_URL: "https://iamza-sandbox.s3.af-south-1.amazonaws.com/active.png"

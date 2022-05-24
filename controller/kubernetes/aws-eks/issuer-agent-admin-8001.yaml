@@ -1,0 +1,35 @@
+# apiVersion: networking.k8s.io/v1beta1 # for k3s < v1.19
+# https://k3d.io/v5.0.1/usage/exposing_services/
+
+# https://www.eksworkshop.com/beginner/130_exposing-service/ingress_controller_alb/
+#
+# see below for annotations related to the ssl settings
+# https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/tasks/ssl_redirect/
+
+---
+# https://issuer-agent-admin.iamza-sandbox.com
+# k8s-cornerst-cornerst-d7a30c27d5
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cornerstone-issuer-admin-ingress
+  namespace: cornerstone-issuer
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    ingress.kubernetes.io/ssl-redirect: "false"    
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:af-south-1:149875424875:certificate/f862af7f-40b5-4d20-8960-a746f637aff8
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cornerstone-issuer-agent
+            port:
+              number: 8001

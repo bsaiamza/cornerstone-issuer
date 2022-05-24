@@ -5,7 +5,10 @@
 #
 # see below for annotations related to the ssl settings
 # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/tasks/ssl_redirect/
+
 ---
+# https://issuer.iamza-sandbox.com
+# k8s-cornerst-cornerst-84742d4fd7
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -23,17 +26,11 @@ spec:
   rules:
   - http:
       paths:
-      - path: /api/v1/cornerstone/issuer
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: cornerstone-issuer
             port:
               number: 8180
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: cornerstone-issuer-agent
-            port:
-              number: 8000
+
