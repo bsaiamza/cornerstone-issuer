@@ -1,39 +1,59 @@
 package api
 
 import (
-	acapy "cornerstone_issuer/pkg/acapy_client"
-	"cornerstone_issuer/pkg/config"
+	"embed"
+	"fmt"
+	"io/fs"
 	"net/http"
+
+	acapy "cornerstone_issuer/pkg/acapy_client"
+	"cornerstone_issuer/pkg/cache"
+	"cornerstone_issuer/pkg/config"
 )
 
-func NewRouter(config *config.Config, client *acapy.Client) *http.ServeMux {
+//go:embed build
+var embeddedFiles embed.FS
+
+func NewRouter(config *config.Config, acapyClient *acapy.Client, cache *cache.BigCache) *http.ServeMux {
 	r := http.NewServeMux()
 
 	apiBaseURL := config.GetAPIBaseURL()
 
-	// health check
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/healthz", healthz(config, client))
-	// schema routes
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/schema/create", createSchema(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/schemas", querySchemas(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/schema", getSchema(config, client))
-	// credential definitions routes
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/credential-definition/create", createCredentialDefinition(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/credential-definitions", queryCredentialDefinitions(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/credential-definition", getCredentialDefinition(config, client))
-	// connection routes
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/connections", queryConnections(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/connection", getConnection(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/connection/remove", removeConnection(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/connection/send-message", sendMessage(config, client))
-	// connection v1 routes
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/connection/v1/create-invitation", createInvitationV1(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/connection/v1/accept-request", acceptRequestV1(config, client))
-	// connection v2 routes //TODO: v2 oob & didexchange connection
-	// credential routes
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/credential/v2/proposals", queryProposalsV2(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/credential/v2/offer-proposal", sendOfferV2(config, client))
-	r.HandleFunc(apiBaseURL + "/cornerstone/issuer/credential/v2/issue", issueCredentialV2(config, client))
+	// health
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/health", health(config))
+	// logo
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/logo", getIamzaLogo(config))
+	// did
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/did", getDID(config, acapyClient))
+	// schema
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/schema/create", createSchema(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/schema", getSchema(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/schemas", listSchemas(config, acapyClient))
+	// credential definition
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/definition/create", createCredentialDefinition(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/definition", getCredentialDefinition(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/definitions", listCredentialDefinitions(config, acapyClient))
+	// connection
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connection/invitation", invitation(config, acapyClient, cache))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connections", listConnections(config, acapyClient))
+	// credential
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential/requests", listCredentialRequests(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential/offer", credentialOffer(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential/issue", issueCredential(config, acapyClient))
+
+	r.Handle("/", http.FileServer(getFileSystem()))
 
 	return r
+}
+
+func getFileSystem() http.FileSystem {
+	// Get the build subdirectory as the
+	// root directory so that it can be passed
+	// to the http.FileServer
+	fsys, err := fs.Sub(embeddedFiles, "build")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return http.FS(fsys)
 }

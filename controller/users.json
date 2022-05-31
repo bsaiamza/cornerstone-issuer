@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "id": "",
+      "givenName": "Imtiyaaz",
+      "familyName": "Leslie",
+      "gender": "Male",
+      "lprNumber": "123456789",
+      "lprCategory": "ZA01",
+      "residentSince": "01-03-1996",
+      "commuterClassification": "C01",
+      "birthDate": "01-03-1996",
+      "birthCountry": "South Africa"
+    }
+  ]
+}

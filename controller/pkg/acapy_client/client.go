@@ -2,14 +2,14 @@ package acapy
 
 import (
 	"bytes"
-	"cornerstone_issuer/pkg/log"
 	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
-
 	"net/http"
 	"strings"
+
+	"cornerstone_issuer/pkg/log"
 )
 
 // Client ...
@@ -68,17 +68,17 @@ func (c *Client) get(path string, queryParams map[string]string, response interf
 	return c.request(http.MethodGet, c.acapyURL+path, queryParams, nil, response)
 }
 
-func (c *Client) patch(path string, queryParams map[string]string, body interface{}, response interface{}) error {
-	return c.request(http.MethodPatch, c.acapyURL+path, queryParams, body, response)
-}
+// func (c *Client) patch(path string, queryParams map[string]string, body interface{}, response interface{}) error {
+// 	return c.request(http.MethodPatch, c.acapyURL+path, queryParams, body, response)
+// }
 
-func (c *Client) put(path string) error {
-	return c.request(http.MethodPut, c.acapyURL+path, nil, nil, nil)
-}
+// func (c *Client) put(path string) error {
+// 	return c.request(http.MethodPut, c.acapyURL+path, nil, nil, nil)
+// }
 
-func (c *Client) delete(url string) error {
-	return c.request(http.MethodDelete, url, nil, nil, nil)
-}
+// func (c *Client) delete(url string) error {
+// 	return c.request(http.MethodDelete, url, nil, nil, nil)
+// }
 
 func (c *Client) request(method string, url string, queryParams map[string]string, body interface{}, responseObject interface{}) error {
 	var input io.Reader
@@ -128,18 +128,4 @@ func (c *Client) request(method string, url string, queryParams map[string]strin
 		}
 	}
 	return nil
-}
-
-func (c *Client) getFile(url string) ([]byte, error) {
-	r, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := c.HTTPClient.Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-	return ioutil.ReadAll(response.Body)
 }

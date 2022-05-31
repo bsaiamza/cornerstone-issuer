@@ -1,9 +1,10 @@
 package config
 
 import (
-	"cornerstone_issuer/pkg/log"
 	"os"
 	"path/filepath"
+
+	"cornerstone_issuer/pkg/log"
 
 	"github.com/joho/godotenv"
 )
@@ -33,11 +34,6 @@ func getEnv(key string) string {
 // GetAcapyURL returns the Acapy URL.
 func (c *Config) GetAcapyURL() string {
 	return getEnv("ACAPY_URL")
-}
-
-// GetAcapyAdminAPIKey returns the Acapy Admin API key.
-func (c *Config) GetAcapyAdminAPIKey() string {
-	return getEnv("ACAPY_ADMIN_API_KEY")
 }
 
 // GetClientURL returns the client URL.

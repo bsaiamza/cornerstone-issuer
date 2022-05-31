@@ -8,9 +8,9 @@ import (
 	"cornerstone_issuer/pkg/models"
 )
 
-// CreateCredentialDefinition is used to create a credential definition.
+// CreateCredentialDefinition creates a credential definition.
 func (c *Client) CreateCredentialDefinition(request models.CreateCredentialDefinitionRequest, params *models.CreateCredentialDefinitionParams) (models.CreateCredentialDefinitionResponse, error) {
-	var createCredentialDefinitionResponse models.CreateCredentialDefinitionResponse
+	var credentialDefinition models.CreateCredentialDefinitionResponse
 
 	var queryParams = map[string]string{}
 	if params != nil {
@@ -20,17 +20,17 @@ func (c *Client) CreateCredentialDefinition(request models.CreateCredentialDefin
 		}
 	}
 
-	err := c.post("/credential-definitions", queryParams, request, &createCredentialDefinitionResponse)
+	err := c.post("/credential-definitions", queryParams, request, &credentialDefinition)
 	if err != nil {
-		log.ServerError.Print("Failed on ACA-py /credential-definitions: ", err)
+		log.Error.Printf("Failed on ACA-py /credential-definitions: %s", err.Error())
 		return models.CreateCredentialDefinitionResponse{}, err
 	}
-	return createCredentialDefinitionResponse, nil
+	return credentialDefinition, nil
 }
 
-// QueryCredentialDefinitions returns all credential definitions.
-func (c *Client) QueryCredentialDefinitions(params *models.QueryCredentialDefinitionsParams) (models.QueryCredentialDefinitionsResponse, error) {
-	var queryCredentialDefinitionsResponse models.QueryCredentialDefinitionsResponse
+// ListCredentialDefinitions returns all credential definitions.
+func (c *Client) ListCredentialDefinitions(params *models.ListCredentialDefinitionsParams) (models.ListCredentialDefinitionsResponse, error) {
+	var credentialDefinitions models.ListCredentialDefinitionsResponse
 
 	var queryParams = map[string]string{}
 	if params != nil {
@@ -44,21 +44,22 @@ func (c *Client) QueryCredentialDefinitions(params *models.QueryCredentialDefini
 		}
 	}
 
-	err := c.get("/credential-definitions/created", queryParams, &queryCredentialDefinitionsResponse)
+	err := c.get("/credential-definitions/created", queryParams, &credentialDefinitions)
 	if err != nil {
-		log.ServerError.Print("Failed on ACA-py /credential-definitions/created: ", err)
-		return models.QueryCredentialDefinitionsResponse{}, err
+		log.Error.Printf("Failed on ACA-py /credential-definitions/created: %s", err.Error())
+		return models.ListCredentialDefinitionsResponse{}, err
 	}
-	return queryCredentialDefinitionsResponse, nil
+	return credentialDefinitions, nil
 }
 
 // GetCredentialDefinition returns a credential definition.
+// ! this function will be specific to the cornerstone credential definition or alike for other definitions.
 func (c *Client) GetCredentialDefinition(credDefID string) (models.GetCredentialDefinitionResponse, error) {
 	var credentialDefinition models.GetCredentialDefinitionResponse
 
 	err := c.get(fmt.Sprintf("/credential-definitions/%s", credDefID), nil, &credentialDefinition)
 	if err != nil {
-		log.ServerError.Print("Failed on ACA-py /credential-definitions/{cred_def_id}: ", err)
+		log.Error.Printf("Failed on ACA-py /credential-definitions/{cred_def_id}: %s", err.Error())
 		return models.GetCredentialDefinitionResponse{}, err
 	}
 	return credentialDefinition, nil

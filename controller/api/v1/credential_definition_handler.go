@@ -12,14 +12,14 @@ import (
 	"cornerstone_issuer/pkg/server"
 )
 
-func createCredentialDefinition(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func createCredentialDefinition(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(createCredentialDefinitionHandler(config, c), mdw...)
+	return server.ChainMiddleware(createCredentialDefinitionHandler(config, acapyClient), mdw...)
 }
-func createCredentialDefinitionHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func createCredentialDefinitionHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -56,9 +56,10 @@ func createCredentialDefinitionHandler(config *config.Config, c *acapy.Client) h
 
 		var createCredentialDefinitionRequest models.CreateCredentialDefinitionRequest
 
-		if err := json.NewDecoder(r.Body).Decode(&createCredentialDefinitionRequest); err != nil {
-			log.Error.Printf("Failed to decode request body: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
+		err := json.NewDecoder(r.Body).Decode(&createCredentialDefinitionRequest)
+		if err != nil {
+			log.Error.Printf("Failed to decode request body: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
 				"msg":     "Failed to decode request body: " + err.Error(),
@@ -67,9 +68,9 @@ func createCredentialDefinitionHandler(config *config.Config, c *acapy.Client) h
 			return
 		}
 
-		credentialDefinition, err := c.CreateCredentialDefinition(createCredentialDefinitionRequest, &queryParams)
+		definition, err := acapyClient.CreateCredentialDefinition(createCredentialDefinitionRequest, &queryParams)
 		if err != nil {
-			log.Error.Printf("Failed to create credential definition: %s", err)
+			log.Error.Printf("Failed to create credential definition: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
@@ -82,18 +83,18 @@ func createCredentialDefinitionHandler(config *config.Config, c *acapy.Client) h
 		log.Info.Print("Credential definition created!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(credentialDefinition.Sent.CredentialDefinitionID)
+		json.NewEncoder(w).Encode(definition)
 	}
 }
 
-func queryCredentialDefinitions(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func listCredentialDefinitions(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(queryCredentialDefinitionsHandler(config, c), mdw...)
+	return server.ChainMiddleware(listCredentialDefinitionsHandler(config, acapyClient), mdw...)
 }
-func queryCredentialDefinitionsHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func listCredentialDefinitionsHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -118,7 +119,7 @@ func queryCredentialDefinitionsHandler(config *config.Config, c *acapy.Client) h
 
 		defer r.Body.Close()
 
-		log.Info.Print("Querying credential definitions...")
+		log.Info.Print("Listing credential definitions...")
 
 		credDefID := r.URL.Query().Get("cred_def_id")
 		issuerDID := r.URL.Query().Get("issuer_did")
@@ -127,7 +128,7 @@ func queryCredentialDefinitionsHandler(config *config.Config, c *acapy.Client) h
 		schemaName := r.URL.Query().Get("schema_name")
 		schemaVersion := r.URL.Query().Get("schema_version")
 
-		queryParams := models.QueryCredentialDefinitionsParams{
+		queryParams := models.ListCredentialDefinitionsParams{
 			CredDefID:       credDefID,
 			IssuerDID:       issuerDID,
 			SchemaID:        schemaID,
@@ -136,42 +137,33 @@ func queryCredentialDefinitionsHandler(config *config.Config, c *acapy.Client) h
 			SchemaVersion:   schemaVersion,
 		}
 
-		credentialDefinitions, err := c.QueryCredentialDefinitions(&queryParams)
+		definitions, err := acapyClient.ListCredentialDefinitions(&queryParams)
 		if err != nil {
-			log.Error.Printf("Failed to query credential definitions: %s", err)
+			log.Error.Printf("Failed to list credential definitions: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
-				"msg":     "Failed to query credential definitions: " + err.Error(),
+				"msg":     "Failed to list credential definitions: " + err.Error(),
 			}
 			json.NewEncoder(w).Encode(res)
 			return
 		}
 
-		var credentialDefinitionIDs []models.CredentialDefinition
-		for _, credentialDefinition := range credentialDefinitions.CredentialDefinitionIDs {
-			ids := models.CredentialDefinition{
-				ID: credentialDefinition,
-			}
-
-			credentialDefinitionIDs = append(credentialDefinitionIDs, ids)
-		}
-
-		log.Info.Print("Credential definitions queried!")
+		log.Info.Print("Credential definitions listed successfully!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(credentialDefinitionIDs)
+		json.NewEncoder(w).Encode(definitions)
 	}
 }
 
-func getCredentialDefinition(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func getCredentialDefinition(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(getCredentialDefinitionHandler(config, c), mdw...)
+	return server.ChainMiddleware(getCredentialDefinitionHandler(config, acapyClient), mdw...)
 }
-func getCredentialDefinitionHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func getCredentialDefinitionHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -196,13 +188,13 @@ func getCredentialDefinitionHandler(config *config.Config, c *acapy.Client) http
 
 		defer r.Body.Close()
 
-		log.Info.Print("Getting credential definition...")
+		log.Info.Println("Retrieving credential definition...")
 
 		credDefID := r.URL.Query().Get("cred_def_id")
 
-		credentialDefinition, err := c.GetCredentialDefinition(credDefID)
+		definition, err := acapyClient.GetCredentialDefinition(credDefID)
 		if err != nil {
-			log.Error.Printf("Failed to get credential definition: %s", err)
+			log.Error.Printf("Failed to get credential definition: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
@@ -212,9 +204,62 @@ func getCredentialDefinitionHandler(config *config.Config, c *acapy.Client) http
 			return
 		}
 
-		log.Info.Print("Credential definition gotten!")
+		log.Info.Println("Credential definition retrieved successfully!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(credentialDefinition.CredentialDefinition)
+		json.NewEncoder(w).Encode(definition.CredentialDefinition)
 	}
 }
+
+// func getCornerstoneCredentialDefinition(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+// 	mdw := []server.Middleware{
+// 		server.NewLogRequest,
+// 	}
+
+// 	return server.ChainMiddleware(getCornerstoneCredentialDefinitionHandler(config, acapyClient), mdw...)
+// }
+// func getCornerstoneCredentialDefinitionHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		header := w.Header()
+// 		header.Add("Access-Control-Allow-Origin", "*")
+// 		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
+// 		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+// 		if r.Method == "OPTIONS" {
+// 			w.WriteHeader(http.StatusOK)
+// 			return
+// 		}
+
+// 		if r.Method != http.MethodGet {
+// 			log.Warning.Print("Incorrect request method!")
+// 			w.WriteHeader(http.StatusMethodNotAllowed)
+// 			res := server.Res{
+// 				"success": false,
+// 				"msg":     "Warning: Incorrect request method!",
+// 			}
+// 			json.NewEncoder(w).Encode(res)
+// 			return
+// 		}
+
+// 		defer r.Body.Close()
+
+// 		log.Info.Println("Retrieving credential definition...")
+
+// 		definition, err := acapyClient.GetCredentialDefinition(config.GetCredDefID())
+// 		if err != nil {
+// 			log.Error.Printf("Failed to get credential definition: %s", err.Error())
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			res := server.Res{
+// 				"success": false,
+// 				"msg":     "Failed to get credential definition: " + err.Error(),
+// 			}
+// 			json.NewEncoder(w).Encode(res)
+// 			return
+// 		}
+
+// 		log.Info.Println("Credential definition retrieved successfully!")
+
+// 		w.WriteHeader(http.StatusOK)
+// 		json.NewEncoder(w).Encode(definition.CredentialDefinition)
+// 	}
+// }
