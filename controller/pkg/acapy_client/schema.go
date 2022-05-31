@@ -8,9 +8,9 @@ import (
 	"cornerstone_issuer/pkg/models"
 )
 
-// CreateSchema is used to create a schema.
+// CreateSchema creates a schema.
 func (c *Client) CreateSchema(request models.CreateSchemaRequest, params *models.CreateSchemaParams) (models.CreateSchemaResponse, error) {
-	var createSchemaResponse models.CreateSchemaResponse
+	var schema models.CreateSchemaResponse
 
 	var queryParams = map[string]string{}
 	if params != nil {
@@ -20,17 +20,17 @@ func (c *Client) CreateSchema(request models.CreateSchemaRequest, params *models
 		}
 	}
 
-	err := c.post("/schemas", queryParams, request, &createSchemaResponse)
+	err := c.post("/schemas", queryParams, request, &schema)
 	if err != nil {
-		log.ServerError.Print("Failed on ACA-py /schemas: ", err)
+		log.Error.Printf("Failed on ACA-py /schemas: %s", err.Error())
 		return models.CreateSchemaResponse{}, err
 	}
-	return createSchemaResponse, nil
+	return schema, nil
 }
 
-// QuerySchemas returns all schemas.
-func (c *Client) QuerySchemas(params *models.QuerySchemasParams) (models.QuerySchemasResponse, error) {
-	var querySchemasResponse models.QuerySchemasResponse
+// ListSchemas returns all schemas.
+func (c *Client) ListSchemas(params *models.LitSchemasParams) (models.ListSchemasResponse, error) {
+	var schemas models.ListSchemasResponse
 
 	var queryParams = map[string]string{}
 	if params != nil {
@@ -42,12 +42,12 @@ func (c *Client) QuerySchemas(params *models.QuerySchemasParams) (models.QuerySc
 		}
 	}
 
-	err := c.get("/schemas/created", queryParams, &querySchemasResponse)
+	err := c.get("/schemas/created", queryParams, &schemas)
 	if err != nil {
-		log.ServerError.Print("Failed on ACA-py /schemas/created: ", err)
-		return models.QuerySchemasResponse{}, err
+		log.Error.Printf("Failed on ACA-py /schemas/created: %s", err.Error())
+		return models.ListSchemasResponse{}, err
 	}
-	return querySchemasResponse, nil
+	return schemas, nil
 }
 
 // GetSchema returns a schema.
@@ -56,7 +56,7 @@ func (c *Client) GetSchema(schemaID string) (models.GetSchemaResponse, error) {
 
 	err := c.get(fmt.Sprintf("/schemas/%s", schemaID), nil, &schema)
 	if err != nil {
-		log.ServerError.Print("Failed on ACA-py /schemas/{schema_id}: ", err)
+		log.Error.Printf("Failed on ACA-py /schemas/{schema_id}: %s", err.Error())
 		return models.GetSchemaResponse{}, err
 	}
 	return schema, nil

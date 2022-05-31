@@ -22,7 +22,7 @@ services:
       ACAPY_AUTO_PROVISION: "true"
       ACAPY_DEBUG_CONNECTIONS: "true"
       ACAPY_ENDPOINT: "http://issuer-agent:8000"
-      ACAPY_LABEL: "Cornerstone Issuer"
+      ACAPY_LABEL: "Iamza Cornerstone Issuer"
       ACAPY_GENESIS_URL: "http://172.20.0.1:9000/genesis"
       ACAPY_WALLET_NAME: "issuer_wallet"
       ACAPY_WALLET_KEY: "issuer_secret"
@@ -31,6 +31,10 @@ services:
       ACAPY_LOG_LEVEL: "info"
       ADMIN_PORT: "8001"
       AGENT_PORT: "8000"
+      ACAPY_AUTO_ACCEPT_INVITES: "true"
+      ACAPY_AUTO_ACCEPT_REQUESTS: "true"
+      ACAPY_AUTO_PING_CONNECTION: "true"
+      ACAPY_AUTO_RESPOND_CREDENTIAL_PROPOSAL: "true"
     entrypoint: /bin/bash
     command: [
         "-c",

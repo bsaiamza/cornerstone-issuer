@@ -20,8 +20,8 @@ func NewServer() *Server {
 	return server
 }
 
-// WithAddr returns the server address.
-func (s *Server) WithAddr(addr string) *Server {
+// WithAddress returns the server address.
+func (s *Server) WithAddress(addr string) *Server {
 	s.Router.Addr = addr
 	return s
 }

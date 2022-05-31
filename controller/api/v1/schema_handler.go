@@ -12,14 +12,14 @@ import (
 	"cornerstone_issuer/pkg/server"
 )
 
-func createSchema(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func createSchema(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(createSchemaHandler(config, c), mdw...)
+	return server.ChainMiddleware(createSchemaHandler(config, acapyClient), mdw...)
 }
-func createSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func createSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -56,9 +56,10 @@ func createSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFun
 
 		var createSchemaRequest models.CreateSchemaRequest
 
-		if err := json.NewDecoder(r.Body).Decode(&createSchemaRequest); err != nil {
-			log.Error.Printf("Failed to decode request body: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
+		err := json.NewDecoder(r.Body).Decode(&createSchemaRequest)
+		if err != nil {
+			log.Error.Printf("Failed to decode request body: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
 				"msg":     "Failed to decode request body: " + err.Error(),
@@ -67,9 +68,9 @@ func createSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFun
 			return
 		}
 
-		schema, err := c.CreateSchema(createSchemaRequest, &queryParams)
+		schema, err := acapyClient.CreateSchema(createSchemaRequest, &queryParams)
 		if err != nil {
-			log.Error.Printf("Failed to create schema: %s", err)
+			log.Error.Printf("Failed to create schema: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
@@ -82,18 +83,18 @@ func createSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFun
 		log.Info.Print("Schema created!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(schema.Sent.Schema)
+		json.NewEncoder(w).Encode(schema)
 	}
 }
 
-func querySchemas(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func listSchemas(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(querySchemasHandler(config, c), mdw...)
+	return server.ChainMiddleware(listSchemasHandler(config, acapyClient), mdw...)
 }
-func querySchemasHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func listSchemasHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -118,59 +119,50 @@ func querySchemasHandler(config *config.Config, c *acapy.Client) http.HandlerFun
 
 		defer r.Body.Close()
 
-		log.Info.Print("Querying schemas...")
+		log.Info.Print("Listing schemas...")
 
 		schemaID := r.URL.Query().Get("schema_id")
 		schemaIssuerDID := r.URL.Query().Get("schema_issuer_did")
 		schemaName := r.URL.Query().Get("schema_name")
 		schemaVersion := r.URL.Query().Get("schema_version")
 
-		queryParams := models.QuerySchemasParams{
+		queryParams := models.LitSchemasParams{
 			SchemaID:        schemaID,
 			SchemaIssuerDID: schemaIssuerDID,
 			SchemaName:      schemaName,
 			SchemaVersion:   schemaVersion,
 		}
 
-		schemas, err := c.QuerySchemas(&queryParams)
+		schemas, err := acapyClient.ListSchemas(&queryParams)
 		if err != nil {
-			log.Error.Printf("Failed to query schemas: %s", err)
+			log.Error.Printf("Failed to list schemas: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
-				"msg":     "Failed to query schemas: " + err.Error(),
+				"msg":     "Failed to list schemas: " + err.Error(),
 			}
 			json.NewEncoder(w).Encode(res)
 			return
 		}
 
-		var schemaIDs []models.Schema
-		for _, schema := range schemas.SchemaIDs {
-			ids := models.Schema{
-				ID: schema,
-			}
-
-			schemaIDs = append(schemaIDs, ids)
-		}
-
-		log.Info.Print("Schemas queried!")
+		log.Info.Print("Schemas listed successfully!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(schemaIDs)
+		json.NewEncoder(w).Encode(schemas)
 	}
 }
 
-func getSchema(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func getSchema(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(getSchemaHandler(config, c), mdw...)
+	return server.ChainMiddleware(getSchemaHandler(config, acapyClient), mdw...)
 }
-func getSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
+func getSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
-		header.Add("Access-Control-Allow-Origin", config.GetAcapyURL())
+		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
 		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
 		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
@@ -192,13 +184,13 @@ func getSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
 
 		defer r.Body.Close()
 
-		log.Info.Print("Getting schema...")
+		log.Info.Println("Retrieving schema...")
 
 		schemaID := r.URL.Query().Get("schema_id")
 
-		schema, err := c.GetSchema(schemaID)
+		schema, err := acapyClient.GetSchema(schemaID)
 		if err != nil {
-			log.Error.Printf("Failed to get schema: %s", err)
+			log.Error.Printf("Failed to get schema: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
@@ -208,9 +200,60 @@ func getSchemaHandler(config *config.Config, c *acapy.Client) http.HandlerFunc {
 			return
 		}
 
-		log.Info.Print("Schema gotten!")
+		log.Info.Println("Schema retrieved successfully!")
 
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(schema.Schema)
+		json.NewEncoder(w).Encode(schema)
 	}
 }
+
+// func getCornerstoneSchema(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+// 	mdw := []server.Middleware{
+// 		server.NewLogRequest,
+// 	}
+
+// 	return server.ChainMiddleware(getCornerstoneSchemaHandler(config, acapyClient), mdw...)
+// }
+// func getCornerstoneSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		header := w.Header()
+// 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
+// 		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
+// 		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+// 		if r.Method == "OPTIONS" {
+// 			w.WriteHeader(http.StatusOK)
+// 			return
+// 		}
+
+// 		if r.Method != http.MethodGet {
+// 			log.Warning.Print("Incorrect request method!")
+// 			w.WriteHeader(http.StatusMethodNotAllowed)
+// 			res := server.Res{
+// 				"success": false,
+// 				"msg":     "Warning: Incorrect request method!",
+// 			}
+// 			json.NewEncoder(w).Encode(res)
+// 			return
+// 		}
+
+// 		defer r.Body.Close()
+
+// 		log.Info.Println("Retrieving schema...")
+
+// 		schema, err := acapyClient.GetSchema(config.GetSchemaID())
+// 		if err != nil {
+// 			log.Error.Printf("Failed to get schema: %s", err.Error())
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			res := server.Res{
+// 				"success": false,
+// 				"msg":     "Failed to get schema: " + err.Error(),
+// 			}
+// 			json.NewEncoder(w).Encode(res)
+// 			return
+// 		}
+
+// 		log.Info.Println("Schema retrieved successfully!")
+
+// 		json.NewEncoder(w).Encode(schema)
+// 	}
+// }
