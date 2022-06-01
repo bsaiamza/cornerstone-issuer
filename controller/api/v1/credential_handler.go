@@ -113,7 +113,7 @@ func credentialOfferHandler(config *config.Config, acapyClient *acapy.Client) ht
 
 		defer r.Body.Close()
 
-		credExID := r.URL.Query().Get("cred_ex_id")
+		// credExID := r.URL.Query().Get("cred_ex_id")
 
 		var requestBody offer.CredentialOfferBodyRequest
 		err := json.NewDecoder(r.Body).Decode(&requestBody)
@@ -153,34 +153,34 @@ func credentialOfferHandler(config *config.Config, acapyClient *acapy.Client) ht
 
 		json.Unmarshal(data, &users)
 
-		var dhaUser models.User
+		// var dhaUser models.User
 
-		for _, user := range users.Users {
-			if user.LprNumber == requestBody.IDNum {
-				log.Info.Println("DHA says user exists!")
+		// for _, user := range users.Users {
+		// 	if user.LprNumber == requestBody.IDNum {
+		// 		log.Info.Println("DHA says user exists!")
 
-				dhaUser = models.User{
-					GivenName:              user.GivenName,
-					FamilyName:             user.FamilyName,
-					Gender:                 user.Gender,
-					LprNumber:              user.LprNumber,
-					LprCategory:            user.LprCategory,
-					ResidentSince:          user.ResidentSince,
-					CommuterClassification: user.CommuterClassification,
-					BirthDate:              user.BirthDate,
-					BirthCountry:           user.BirthCountry,
-				}
-			} else {
-				log.Warning.Println("DHA says user does not exists!")
-				// w.WriteHeader(http.StatusInternalServerError)
-				// res := server.Res{
-				// 	"success": false,
-				// 	"msg":     "DHA says user does not exists!",
-				// }
-				// json.NewEncoder(w).Encode(res)
-				// return
-			}
-		}
+		// 		dhaUser = models.User{
+		// 			GivenName:              user.GivenName,
+		// 			FamilyName:             user.FamilyName,
+		// 			Gender:                 user.Gender,
+		// 			LprNumber:              user.LprNumber,
+		// 			LprCategory:            user.LprCategory,
+		// 			ResidentSince:          user.ResidentSince,
+		// 			CommuterClassification: user.CommuterClassification,
+		// 			BirthDate:              user.BirthDate,
+		// 			BirthCountry:           user.BirthCountry,
+		// 		}
+		// 	} else {
+		// 		log.Warning.Println("DHA says user does not exists!")
+		// 		// w.WriteHeader(http.StatusInternalServerError)
+		// 		// res := server.Res{
+		// 		// 	"success": false,
+		// 		// 	"msg":     "DHA says user does not exists!",
+		// 		// }
+		// 		// json.NewEncoder(w).Encode(res)
+		// 		// return
+		// 	}
+		// }
 
 		schema, err := acapyClient.GetSchema(requestBody.SchemaID)
 		if err != nil {
@@ -208,7 +208,10 @@ func credentialOfferHandler(config *config.Config, acapyClient *acapy.Client) ht
 
 		var request = offer.CredentialOfferRequest{
 			AutoRemove: true,
-			CounterPreview: offer.CounterPreview{
+			AutoIssue: false,
+			Comment: "Cornerstone Credential",
+			ConnectionID: requestBody.ConnectionID,
+			CredentialPreview: offer.CredentialPreview{
 				Type: "issue-credential/2.0/credential-preview",
 				Attributes: []offer.Attribute{
 					{
@@ -217,39 +220,39 @@ func credentialOfferHandler(config *config.Config, acapyClient *acapy.Client) ht
 					},
 					{
 						Name:  "givenName",
-						Value: dhaUser.GivenName,
+						Value: requestBody.GivenName,
 					},
 					{
 						Name:  "familyName",
-						Value: dhaUser.FamilyName,
+						Value: requestBody.FamilyName,
 					},
 					{
 						Name:  "gender",
-						Value: dhaUser.Gender,
+						Value: requestBody.Gender,
 					},
 					{
 						Name:  "lprNumber",
-						Value: dhaUser.LprNumber,
+						Value: requestBody.LprNumber,
 					},
 					{
 						Name:  "lprCategory",
-						Value: dhaUser.LprCategory,
+						Value: requestBody.LprCategory,
 					},
 					{
 						Name:  "residentSince",
-						Value: dhaUser.ResidentSince,
+						Value: requestBody.ResidentSince,
 					},
 					{
 						Name:  "commuterClassification",
-						Value: dhaUser.CommuterClassification,
+						Value: requestBody.CommuterClassification,
 					},
 					{
 						Name:  "birthDate",
-						Value: dhaUser.BirthDate,
+						Value: requestBody.BirthDate,
 					},
 					{
 						Name:  "birthCountry",
-						Value: dhaUser.BirthCountry,
+						Value: requestBody.BirthCountry,
 					},
 				},
 			},
@@ -273,18 +276,18 @@ func credentialOfferHandler(config *config.Config, acapyClient *acapy.Client) ht
 						Description:  "Government issued Smart ID card.",
 						IssuanceDate: time.Now().Format(time.RFC3339),
 						CredentialSubject: offer.CredentialSubject{
-							ID:                     "did:sov:TwvLGLxQPgdmXuJXpq33mh",
+							ID:                     "did:sov:" + did.Result.Did,
 							Type:                   []string{"PermanentResident", "Person"},
-							GivenName:              dhaUser.GivenName,
-							FamilyName:             dhaUser.FamilyName,
-							Gender:                 dhaUser.Gender,
+							GivenName:              requestBody.GivenName,
+							FamilyName:             requestBody.FamilyName,
+							Gender:                 requestBody.Gender,
 							Image:                  "",
-							ResidentSince:          dhaUser.ResidentSince,
-							LprCategory:            dhaUser.LprCategory,
-							LprNumber:              dhaUser.LprNumber,
-							CommuterClassification: dhaUser.CommuterClassification,
-							BirthCountry:           dhaUser.BirthCountry,
-							BirthDate:              dhaUser.BirthDate,
+							ResidentSince:          requestBody.ResidentSince,
+							LprCategory:            requestBody.LprCategory,
+							LprNumber:              requestBody.LprNumber,
+							CommuterClassification: requestBody.CommuterClassification,
+							BirthCountry:           requestBody.BirthCountry,
+							BirthDate:              requestBody.BirthDate,
 						},
 						Proof: offer.Proof{
 							Type:               "Ed25519Signature2018",
@@ -302,7 +305,9 @@ func credentialOfferHandler(config *config.Config, acapyClient *acapy.Client) ht
 			Trace: false,
 		}
 
-		offer, err := acapyClient.CornerstoneCredentialOffer(credExID, request, config)
+		log.Info.Println(request)
+
+		offer, err := acapyClient.CornerstoneCredentialOfferV2(request)
 		if err != nil {
 			log.Error.Printf("Failed to send credential offer: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)

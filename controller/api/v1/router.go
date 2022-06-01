@@ -22,7 +22,7 @@ func NewRouter(config *config.Config, acapyClient *acapy.Client, cache *cache.Bi
 	// health
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/health", health(config))
 	// logo
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/logo", getIamzaLogo(config))
+	// r.HandleFunc(apiBaseURL+"/cornerstone/issuer/logo", getIamzaLogo(config))
 	// did
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/did", getDID(config, acapyClient))
 	// schema

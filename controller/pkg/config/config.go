@@ -50,3 +50,8 @@ func (c *Config) GetServerAddress() string {
 func (c *Config) GetAPIBaseURL() string {
 	return getEnv("API_BASE_URL")
 }
+
+// GetLogoName returns the logo name.
+func (c *Config) GetLogoName() string {
+	return getEnv("LOGO_NAME")
+}

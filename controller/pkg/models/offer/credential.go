@@ -1,19 +1,32 @@
 package offer
 
 type CredentialOfferBodyRequest struct {
+	ConnectionID string `json:"connection_id"`
 	IDNum     string `json:"id_no,omitempty"`
+	GivenName              string `json:"givenName"`
+	FamilyName             string `json:"familyName"`
+	Gender                 string `json:"gender"`
+	LprNumber              string `json:"lprNumber"`
+	LprCategory            string `json:"lprCategory"`
+	ResidentSince          string `json:"residentSince"`
+	CommuterClassification string `json:"commuterClassification"`
+	BirthDate              string `json:"birthDate"`
+	BirthCountry           string `json:"birthCountry"`
 	SchemaID  string `json:"schema_id,omitempty"`
 	CredDefID string `json:"cred_def_id,omitempty"`
 }
 
 type CredentialOfferRequest struct {
+	AutoIssue     bool           `json:"auto_issue"`
 	AutoRemove     bool           `json:"auto_remove"`
-	CounterPreview CounterPreview `json:"counter_preview"`
+	Comment     string           `json:"comment"`
+	ConnectionID     string           `json:"connection_id"`
+	CredentialPreview CredentialPreview `json:"credential_preview"`
 	Filter         Filter         `json:"filter"`
 	Trace          bool           `json:"trace"`
 }
 
-type CounterPreview struct {
+type CredentialPreview struct {
 	Type       string      `json:"@type"`
 	Attributes []Attribute `json:"attributes"`
 }

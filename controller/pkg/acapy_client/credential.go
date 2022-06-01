@@ -37,7 +37,19 @@ func (c *Client) CornerstoneCredentialOffer(credExID string, request offer.Crede
 
 	err := c.post(fmt.Sprintf("/issue-credential-2.0/records/%s/send-offer", credExID), nil, request, &proposal)
 	if err != nil {
-		log.Error.Printf("Failed on ACA-py /issue-credential-2.0/send-proposal: %s", err.Error())
+		log.Error.Printf("Failed on ACA-py /issue-credential-2.0/{cred_ex_id}/send-offer: %s", err.Error())
+		return proposals.CornerstoneCredentialProposalResponse{}, err
+	}
+	return proposal, nil
+}
+
+// CornerstoneCredentialProposal sends a credential offer.
+func (c *Client) CornerstoneCredentialOfferV2(request offer.CredentialOfferRequest) (proposals.CornerstoneCredentialProposalResponse, error) {
+	var proposal proposals.CornerstoneCredentialProposalResponse
+
+	err := c.post("/issue-credential-2.0/send-offer", nil, request, &proposal)
+	if err != nil {
+		log.Error.Printf("Failed on ACA-py /issue-credential-2.0/send-offer: %s", err.Error())
 		return proposals.CornerstoneCredentialProposalResponse{}, err
 	}
 	return proposal, nil

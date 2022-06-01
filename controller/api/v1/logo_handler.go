@@ -44,7 +44,7 @@ func getIamzaLogoHandler(config *config.Config) http.HandlerFunc {
 
 		log.Info.Print("Retrieving Iamza logo...")
 
-		logo, err := ioutil.ReadFile("iamza_logo.png")
+		logo, err := ioutil.ReadFile(config.GetServerAddress() +"/static/media/"+ config.GetLogoName())
 		if err != nil {
 			log.Error.Printf("Failed to get logo: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
