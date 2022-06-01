@@ -28,9 +28,7 @@ data:
     ACAPY_INVITE_MULTI_USE: "true"
     ACAPY_AUTO_ACCEPT_INVITES: "true"
     ACAPY_AUTO_ACCEPT_REQUESTS: "true"
+    ACAPY_AUTO_PROVISION: "true"
+    ACAPY_AUTO_PING_CONNECTION: "true"
     ACAPY_INVITE_LABEL: "IAMZA Cornerstone Credential"
     ACAPY_IMAGE_URL: "https://iamza-sandbox.s3.af-south-1.amazonaws.com/active.png"
-    # Images stored in s3://iamza-sandbox  bucket
-    # https://iamza-sandbox.s3.af-south-1.amazonaws.com/black1.png -> active.png
-    # https://iamza-sandbox.s3.af-south-1.amazonaws.com/black1.png
-    # https://iamza-sandbox.s3.af-south-1.amazonaws.com/white1.png

@@ -23,13 +23,11 @@ test:
 	go test -v -cover ./...
 
 build_docker:
-	#docker build -t georgelza/cornerstone-issuer:0.0.2 .
-	docker build -t cornerstone-issuer:0.0.2 .
-	docker tag cornerstone-issuer:0.0.2 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.2
+	docker build -t cornerstone-issuer:0.0.3 .
+	docker tag cornerstone-issuer:0.0.3 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.3
 
 push_docker:
-	#docker push georgelza/cornerstone-issuer:0.0.2
-	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.2
+	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.3
 
 
 .PHONY: docker-down docker-start docker-stop docker-up fmt lint run test build_docker push_docker

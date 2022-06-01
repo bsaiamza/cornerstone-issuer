@@ -42,10 +42,6 @@ spec:
               --admin '0.0.0.0' 8001 \  
               --inbound-transport http '0.0.0.0' 8000 \
               --outbound-transport http 
-              --connections-invite
-              --auto-provision
-              --auto-accept-invites
-              --auto-accept-requests
-              --auto-ping-connection",]
+              --connections-invite",]
 
 
