@@ -31,4 +31,4 @@ data:
     ACAPY_AUTO_PROVISION: "true"
     ACAPY_AUTO_PING_CONNECTION: "true"
     ACAPY_INVITE_LABEL: "IAMZA Cornerstone Credential"
-    ACAPY_IMAGE_URL: "https://iamza-sandbox.s3.af-south-1.amazonaws.com/active.png"
+    ACAPY_IMAGE_URL: "https://issuer.iamza-sandbox.com/static/media/iamza_logo.png"
