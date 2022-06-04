@@ -22,20 +22,19 @@ spec:
         app: cornerstone-issuer
     spec:
       containers:
-      - name: cornerstone-issuer
-        image: 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.3
-        imagePullPolicy: Always
-        ports:
-        - name: server-port
-          containerPort: 8180
-          protocol: TCP
-        - name: agnt-adm-port
-          containerPort: 8001
-          protocol: TCP
-        - name: agnt-port
-          containerPort: 8000
-          protocol: TCP
-        envFrom:
-          - configMapRef:
-              name: cornerstone-issuer-configmap
-        
+        - name: cornerstone-issuer
+          image: 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.4
+          imagePullPolicy: Always
+          ports:
+            - name: server-port
+              containerPort: 8180
+              protocol: TCP
+            - name: agnt-adm-port
+              containerPort: 8001
+              protocol: TCP
+            - name: agnt-port
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: cornerstone-issuer-configmap

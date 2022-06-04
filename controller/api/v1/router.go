@@ -7,24 +7,22 @@ import (
 	"net/http"
 
 	acapy "cornerstone_issuer/pkg/acapy_client"
-	"cornerstone_issuer/pkg/cache"
 	"cornerstone_issuer/pkg/config"
+	"cornerstone_issuer/pkg/util"
 )
 
 //go:embed build
 var embeddedFiles embed.FS
 
-func NewRouter(config *config.Config, acapyClient *acapy.Client, cache *cache.BigCache) *http.ServeMux {
+func NewRouter(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) *http.ServeMux {
 	r := http.NewServeMux()
 
 	apiBaseURL := config.GetAPIBaseURL()
 
 	// health
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/health", health(config))
-	// logo
-	// r.HandleFunc(apiBaseURL+"/cornerstone/issuer/logo", getIamzaLogo(config))
 	// did
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/did", getDID(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/did", getPublicDID(config, acapyClient))
 	// schema
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/schema/create", createSchema(config, acapyClient))
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/schema", getSchema(config, acapyClient))
@@ -34,12 +32,13 @@ func NewRouter(config *config.Config, acapyClient *acapy.Client, cache *cache.Bi
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/definition", getCredentialDefinition(config, acapyClient))
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/definitions", listCredentialDefinitions(config, acapyClient))
 	// connection
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connection/invitation", invitation(config, acapyClient, cache))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connection/invitation", invitation(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connection/multi-invitation", multiInvitation(config, acapyClient, cache))
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connections", listConnections(config, acapyClient))
 	// credential
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential/requests", listCredentialRequests(config, acapyClient))
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential/offer", credentialOffer(config, acapyClient))
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential/issue", issueCredential(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/topic/connections/", issueCredential(config, acapyClient, cache))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential", prepareCornerstoneData(config, acapyClient, cache))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credentials", listCredentials(config, acapyClient))
 
 	r.Handle("/", http.FileServer(getFileSystem()))
 

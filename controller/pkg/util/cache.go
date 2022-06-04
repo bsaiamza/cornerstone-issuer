@@ -1,4 +1,4 @@
-package cache
+package util
 
 import (
 	"encoding/json"
@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"cornerstone_issuer/pkg/log"
+	"cornerstone_issuer/pkg/models"
 
 	"github.com/allegro/bigcache/v3"
 )
 
 type BigCache struct {
-	item *bigcache.BigCache
+	cornerstoneData *bigcache.BigCache
+	data            *bigcache.BigCache
 }
 
 func NewBigCache() *BigCache {
@@ -59,8 +61,13 @@ func NewBigCache() *BigCache {
 	}
 
 	return &BigCache{
-		item: bCache,
+		cornerstoneData: bCache,
+		data:            bCache,
 	}
+}
+
+func dataKey(id string) string {
+	return id
 }
 
 func (bc *BigCache) UpdateString(id, item string) error {
@@ -69,7 +76,7 @@ func (bc *BigCache) UpdateString(id, item string) error {
 		return fmt.Errorf("marshal: %w", err)
 	}
 
-	return bc.item.Set(userKey(id), bs)
+	return bc.data.Set(dataKey(id), bs)
 }
 
 func (bc *BigCache) UpdateStruct(id string, item interface{}) error {
@@ -78,16 +85,12 @@ func (bc *BigCache) UpdateStruct(id string, item interface{}) error {
 		return fmt.Errorf("marshal: %w", err)
 	}
 
-	return bc.item.Set(userKey(id), bs)
-}
-
-func userKey(id string) string {
-	return id
+	return bc.data.Set(dataKey(id), bs)
 }
 
 func (bc *BigCache) ReadString(id string) (string, error) {
-	var item string
-	bs, err := bc.item.Get(userKey(id))
+	var data string
+	bs, err := bc.data.Get(dataKey(id))
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {
 			return "", err
@@ -96,17 +99,17 @@ func (bc *BigCache) ReadString(id string) (string, error) {
 		return "", fmt.Errorf("get: %w", err)
 	}
 
-	err = json.Unmarshal(bs, &item)
+	err = json.Unmarshal(bs, &data)
 	if err != nil {
 		return "", fmt.Errorf("unmarshal: %w", err)
 	}
 
-	return item, nil
+	return data, nil
 }
 
 func (bc *BigCache) ReadStruct(id string) (interface{}, error) {
-	var item interface{}
-	bs, err := bc.item.Get(userKey(id))
+	var data interface{}
+	bs, err := bc.data.Get(dataKey(id))
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {
 			return "", err
@@ -115,14 +118,46 @@ func (bc *BigCache) ReadStruct(id string) (interface{}, error) {
 		return "", fmt.Errorf("get: %w", err)
 	}
 
-	err = json.Unmarshal(bs, &item)
+	err = json.Unmarshal(bs, &data)
 	if err != nil {
 		return "", fmt.Errorf("unmarshal: %w", err)
 	}
 
-	return item, nil
+	return data, nil
 }
 
 func (bc *BigCache) Delete(id string) {
-	bc.item.Delete(userKey(id))
+	bc.data.Delete(dataKey(id))
+}
+
+func (bc *BigCache) UpdateDataCache(invitation_key string, data models.CornerstoneData) error {
+	bs, err := json.Marshal(&data)
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+
+	return bc.cornerstoneData.Set(dataKey(invitation_key), bs)
+}
+
+func (bc *BigCache) ReadDataCache(invitation_key string) (models.CornerstoneData, error) {
+	bs, err := bc.cornerstoneData.Get(dataKey(invitation_key))
+	if err != nil {
+		if errors.Is(err, bigcache.ErrEntryNotFound) {
+			return models.CornerstoneData{}, err
+		}
+
+		return models.CornerstoneData{}, fmt.Errorf("get: %w", err)
+	}
+
+	var cornerstoneData models.CornerstoneData
+	err = json.Unmarshal(bs, &cornerstoneData)
+	if err != nil {
+		return models.CornerstoneData{}, fmt.Errorf("unmarshal: %w", err)
+	}
+
+	return cornerstoneData, nil
+}
+
+func (bc *BigCache) DeleteDataCache(invitation_key string) {
+	bc.cornerstoneData.Delete(dataKey(invitation_key))
 }

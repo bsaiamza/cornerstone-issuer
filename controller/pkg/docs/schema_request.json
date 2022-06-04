@@ -1,0 +1,12 @@
+{
+  "attributes": [
+    "IDNumber",
+    "Surname",
+    "Forenames",
+    "Gender",
+    "DateOfBirth",
+    "CountryOfBirth"
+  ],
+  "schema_name": "Cornerstone_Credential",
+  "schema_version": "1.2"
+}

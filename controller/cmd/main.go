@@ -3,11 +3,11 @@ package main
 import (
 	"cornerstone_issuer/api/v1"
 	acapy "cornerstone_issuer/pkg/acapy_client"
-	"cornerstone_issuer/pkg/cache"
 	"cornerstone_issuer/pkg/config"
 	"cornerstone_issuer/pkg/log"
 	"cornerstone_issuer/pkg/models"
 	"cornerstone_issuer/pkg/server"
+	"cornerstone_issuer/pkg/util"
 )
 
 func main() {
@@ -17,15 +17,15 @@ func main() {
 
 	acapyClient := acapy.NewClient(config.GetAcapyURL())
 
-	cache := cache.NewBigCache()
+	cache := util.NewBigCache()
 
-	// init connection
+	// init connection for ui
 	createInvitationRequest := models.CreateInvitationRequest{}
 	queryParams := models.CreateInvitationParams{}
 
 	invitation, err := acapyClient.CreateInvitation(createInvitationRequest, &queryParams)
 	if err != nil {
-		log.Error.Printf("Failed to generate invitation: %s", err.Error())
+		log.Error.Printf("Failed to generate multi invitation: %s", err.Error())
 		return
 	}
 
@@ -35,7 +35,7 @@ func main() {
 		return
 	}
 
-	err = cache.UpdateStruct("invitationObject", invitation.Invitation)
+	err = cache.UpdateStruct("invitation", invitation.Invitation)
 	if err != nil {
 		log.Error.Printf("Failed to update cache: %s", err.Error())
 		return

@@ -53,7 +53,7 @@ func (c *Client) ListCredentialDefinitions(params *models.ListCredentialDefiniti
 }
 
 // GetCredentialDefinition returns a credential definition.
-// ! this function will be specific to the cornerstone credential definition or alike for other definitions.
+// * this function will be specific to the cornerstone credential definition or alike for other definitions.
 func (c *Client) GetCredentialDefinition(credDefID string) (models.GetCredentialDefinitionResponse, error) {
 	var credentialDefinition models.GetCredentialDefinitionResponse
 

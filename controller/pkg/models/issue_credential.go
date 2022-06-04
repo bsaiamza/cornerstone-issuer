@@ -1,13 +1,111 @@
-package exchange_records
+package models
 
-type ListCredentialExchangeRecordsParams struct {
+type IssueCornerstoneCredentialRequest struct {
+	AutoRemove         bool               `json:"auto_remove"`
+	Comment            string             `json:"comment"`
+	ConnectionID       string             `json:"connection_id"`
+	CredDefID          string             `json:"cred_def_id"`
+	CredentialProposal CredentialProposal `json:"credential_proposal"`
+	IssuerDid          string             `json:"issuer_did"`
+	SchemaID           string             `json:"schema_id"`
+	SchemaIssuerDid    string             `json:"schema_issuer_did"`
+	SchemaName         string             `json:"schema_name"`
+	SchemaVersion      string             `json:"schema_version"`
+	Trace              bool               `json:"trace"`
+}
+
+type CredentialProposal struct {
+	Type       string      `json:"@type"`
+	Attributes []Attribute `json:"attributes"`
+}
+
+type Attribute struct {
+	MIMEType string `json:"mime-type"`
+	Name     string `json:"name"`
+	Value    string `json:"value"`
+}
+
+type IssueCornerstoneCredentialResponse struct {
+	CreatedAt              string                 `json:"created_at"`
+	CredentialOfferDict    CredentialOfferDict    `json:"credential_offer_dict"`
+	ThreadID               string                 `json:"thread_id"`
+	CredentialProposalDict CredentialProposalDict `json:"credential_proposal_dict"`
+	Initiator              string                 `json:"initiator"`
+	ConnectionID           string                 `json:"connection_id"`
+	CredentialDefinitionID string                 `json:"credential_definition_id"`
+	CredentialOffer        CredentialOffer        `json:"credential_offer"`
+	CredentialExchangeID   string                 `json:"credential_exchange_id"`
+	AutoRemove             bool                   `json:"auto_remove"`
+	AutoIssue              bool                   `json:"auto_issue"`
+	Trace                  bool                   `json:"trace"`
+	AutoOffer              bool                   `json:"auto_offer"`
+	State                  string                 `json:"state"`
+	UpdatedAt              string                 `json:"updated_at"`
+	SchemaID               string                 `json:"schema_id"`
+	Role                   string                 `json:"role"`
+}
+
+type CredentialOffer struct {
+	SchemaID            string              `json:"schema_id"`
+	CredDefID           string              `json:"cred_def_id"`
+	Nonce               string              `json:"nonce"`
+	KeyCorrectnessProof KeyCorrectnessProof `json:"key_correctness_proof"`
+}
+
+type KeyCorrectnessProof struct {
+	C     string     `json:"c"`
+	XzCap string     `json:"xz_cap"`
+	XrCap [][]string `json:"xr_cap"`
+}
+
+type CredentialOfferDict struct {
+	Type              string         `json:"@type"`
+	ID                string         `json:"@id"`
+	Thread            Thread         `json:"~thread"`
+	CredentialPreview CredentialPR   `json:"credential_preview"`
+	Comment           string         `json:"comment"`
+	OffersAttach      []OffersAttach `json:"offers~attach"`
+}
+
+type CredentialPR struct {
+	Type       string      `json:"@type"`
+	Attributes []Attribute `json:"attributes"`
+}
+
+type OffersAttach struct {
+	ID       string `json:"@id"`
+	MIMEType string `json:"mime-type"`
+	Data     Data   `json:"data"`
+}
+
+// type Data struct {
+// 	Base64 string `json:"base64"`
+// }
+
+type Thread struct {
+}
+
+type CredentialProposalDict struct {
+	Type               string       `json:"@type"`
+	ID                 string       `json:"@id"`
+	CredentialProposal CredentialPR `json:"credential_proposal"`
+	IssuerDid          string       `json:"issuer_did"`
+	CredDefID          string       `json:"cred_def_id"`
+	SchemaIssuerDid    string       `json:"schema_issuer_did"`
+	SchemaID           string       `json:"schema_id"`
+	SchemaVersion      string       `json:"schema_version"`
+	SchemaName         string       `json:"schema_name"`
+	Comment            string       `json:"comment"`
+}
+
+type ListCredentialRecordsParams struct {
 	ConnectionID string `json:"connection_id"`
 	Role         string `json:"role"`
 	State        string `json:"state"`
 	ThreadID     string `json:"thread_id"`
 }
 
-type ListCredentialExchangeRecordsResponse struct {
+type ListCredentialRecordsResponse struct {
 	Results []Result `json:"results"`
 }
 
@@ -106,12 +204,6 @@ type CredOffer struct {
 type CredPreview struct {
 	Type       string      `json:"@type"`
 	Attributes []Attribute `json:"attributes"`
-}
-
-type Attribute struct {
-	MIMEType string `json:"mime-type"`
-	Name     string `json:"name"`
-	Value    string `json:"value"`
 }
 
 type CredProposal struct {

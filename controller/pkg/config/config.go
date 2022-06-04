@@ -36,6 +36,21 @@ func (c *Config) GetAcapyURL() string {
 	return getEnv("ACAPY_URL")
 }
 
+// GetSchemaID returns the Schema ID.
+func (c *Config) GetSchemaID() string {
+	return getEnv("SCHEMA_ID")
+}
+
+// GetCredDefID returns the Cred Def ID.
+func (c *Config) GetCredDefID() string {
+	return getEnv("CRED_DEF_ID")
+}
+
+// GetDID returns the DID.
+func (c *Config) GetDID() string {
+	return getEnv("DID")
+}
+
 // GetClientURL returns the client URL.
 func (c *Config) GetClientURL() string {
 	return getEnv("CLIENT_URL")
@@ -49,9 +64,4 @@ func (c *Config) GetServerAddress() string {
 // GetServerBaseURL returns the api base url.
 func (c *Config) GetAPIBaseURL() string {
 	return getEnv("API_BASE_URL")
-}
-
-// GetLogoName returns the logo name.
-func (c *Config) GetLogoName() string {
-	return getEnv("LOGO_NAME")
 }

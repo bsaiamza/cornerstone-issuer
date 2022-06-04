@@ -10,14 +10,14 @@ import (
 	"cornerstone_issuer/pkg/server"
 )
 
-func getDID(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func getPublicDID(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(getDIDHandler(config, acapyClient), mdw...)
+	return server.ChainMiddleware(getPublicDIDHandler(config, acapyClient), mdw...)
 }
-func getDIDHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func getPublicDIDHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())

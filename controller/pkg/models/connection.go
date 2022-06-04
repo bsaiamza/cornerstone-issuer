@@ -1,5 +1,12 @@
 package models
 
+type CreateInvitationParams struct {
+	Alias      string `json:"alias"`
+	AutoAccept bool   `json:"auto_accept"`
+	MultiUse   bool   `json:"multi_use"`
+	Public     bool   `json:"public"`
+}
+
 type CreateInvitationRequest struct {
 	MediationID     string   `json:"mediation_id,omitempty"`
 	Metadata        Metadata `json:"metadata,omitempty"`
@@ -12,13 +19,6 @@ type CreateInvitationRequest struct {
 type Metadata struct {
 }
 
-type CreateInvitationParams struct {
-	Alias      string `json:"alias"`
-	AutoAccept bool   `json:"auto_accept"`
-	MultiUse   bool   `json:"multi_use"`
-	Public     bool   `json:"public"`
-}
-
 type CreateInvitationResponse struct {
 	ConnectionID  string     `json:"connection_id"`
 	Invitation    Invitation `json:"invitation"`
@@ -26,22 +26,32 @@ type CreateInvitationResponse struct {
 }
 
 type Invitation struct {
-	ID              string   `json:"@id,omitempty"`
-	Did             string   `json:"did,omitempty"`
-	ImageURL        string   `json:"imageUrl,omitempty"`
-	Label           string   `json:"label,omitempty"`
-	RecipientKeys   []string `json:"recipientKeys,omitempty"`
-	RoutingKeys     []string `json:"routingKeys,omitempty"`
-	ServiceEndpoint string   `json:"serviceEndpoint,omitempty"`
+	ID              string   `json:"@id"`
+	Type            string   `json:"@type"`
+	Did             string   `json:"did"`
+	ImageURL        string   `json:"imageUrl"`
+	Label           string   `json:"label"`
+	RecipientKeys   []string `json:"recipientKeys"`
+	RoutingKeys     []string `json:"routingKeys"`
+	ServiceEndpoint string   `json:"serviceEndpoint"`
 }
 
-type ReceiveInvitationParams struct {
-	Alias       string `json:"alias"`
-	AutoAccept  bool   `json:"auto_accept"`
-	MediationID string `json:"mediation_id"`
+type ListConnectionsParams struct {
+	Alias              string `json:"alias"`
+	ConnectionProtocol string `json:"connection_protocol"`
+	InvitationKey      string `json:"invitation_key"`
+	MyDID              string `json:"my_did"`
+	State              string `json:"state"`
+	TheirDID           string `json:"their_did"`
+	TheirPublicDID     string `json:"their_public_did"`
+	TheirRole          string `json:"their_role"`
 }
 
-type ConnectionResponse struct {
+type ListConnectionsResponse struct {
+	Results []Connection `json:"results"`
+}
+
+type Connection struct {
 	Accept             string `json:"accept"`
 	Alias              string `json:"alias"`
 	ConnectionID       string `json:"connection_id"`
@@ -64,17 +74,24 @@ type ConnectionResponse struct {
 	UpdatedAt          string `json:"updated_at"`
 }
 
-type ListConnectionsParams struct {
-	Alias              string `json:"alias"`
-	ConnectionProtocol string `json:"connection_protocol"`
-	InvitationKey      string `json:"invitation_key"`
-	MyDID              string `json:"my_did"`
-	State              string `json:"state"`
-	TheirDID           string `json:"their_did"`
-	TheirPublicDID     string `json:"their_public_did"`
-	TheirRole          string `json:"their_role"`
+type WebhookConnectionResponse struct {
+	ConnectionID        string `json:"connection_id"`
+	State               string `json:"state"`
+	MyDID               string `json:"my_did"`
+	TheirDID            string `json:"their_did"`
+	TheirLabel          string `json:"their_label"`
+	TheirRole           string `json:"their_role"`
+	InboundConnectionID string `json:"inbound_connection_id"`
+	Initiator           string `json:"initiator"`
+	InvitationKey       string `json:"invitation_key"`
+	RequestID           string `json:"request_id"`
+	RoutingState        string `json:"routing_state"`
+	Accept              string `json:"accept"`
+	ErrorMsg            string `json:"error_msg"`
+	InvitationMode      string `json:"invitation_mode"`
+	Alias               string `json:"alias"`
 }
 
-type ListConnectionsResponse struct {
-	Results []ConnectionResponse `json:"results"`
+type PingConnectionResponse struct {
+	ThreadID string `json:"thread_id"`
 }

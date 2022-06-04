@@ -116,7 +116,7 @@ func (c *Client) request(method string, url string, queryParams map[string]strin
 			if body, err := ioutil.ReadAll(response.Body); err != nil {
 				log.Error.Printf("ACA-py Response body: %s", body)
 			}
-			return errors.New("ACA-py Request failed")
+			return errors.New("ACA-py Request failed " + err.Error())
 		}
 		return err
 	}

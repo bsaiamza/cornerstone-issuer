@@ -1,10 +1,10 @@
 package models
 
-type Did struct {
-	Result Result `json:"result"`
+type GetPublicDidResponse struct {
+	Result Did `json:"result"`
 }
 
-type Result struct {
+type Did struct {
 	Did     string `json:"did"`
 	Verkey  string `json:"verkey"`
 	Posture string `json:"posture"`

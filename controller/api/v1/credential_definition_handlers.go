@@ -12,14 +12,14 @@ import (
 	"cornerstone_issuer/pkg/server"
 )
 
-func createSchema(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func createCredentialDefinition(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(createSchemaHandler(config, acapyClient), mdw...)
+	return server.ChainMiddleware(createCredentialDefinitionHandler(config, acapyClient), mdw...)
 }
-func createSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func createCredentialDefinitionHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -44,19 +44,19 @@ func createSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.
 
 		defer r.Body.Close()
 
-		log.Info.Print("Creating schema...")
+		log.Info.Print("Creating credential definition...")
 
 		connID := r.URL.Query().Get("conn_id")
 		createTransactionForEndorser, _ := strconv.ParseBool(r.URL.Query().Get("create_transaction_for_endorser"))
 
-		queryParams := models.CreateSchemaParams{
+		queryParams := models.CreateCredentialDefinitionParams{
 			ConnID:                       connID,
 			CreateTransactionForEndorser: createTransactionForEndorser,
 		}
 
-		var createSchemaRequest models.CreateSchemaRequest
+		var createCredentialDefinitionRequest models.CreateCredentialDefinitionRequest
 
-		err := json.NewDecoder(r.Body).Decode(&createSchemaRequest)
+		err := json.NewDecoder(r.Body).Decode(&createCredentialDefinitionRequest)
 		if err != nil {
 			log.Error.Printf("Failed to decode request body: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -68,33 +68,33 @@ func createSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.
 			return
 		}
 
-		schema, err := acapyClient.CreateSchema(createSchemaRequest, &queryParams)
+		definition, err := acapyClient.CreateCredentialDefinition(createCredentialDefinitionRequest, &queryParams)
 		if err != nil {
-			log.Error.Printf("Failed to create schema: %s", err.Error())
+			log.Error.Printf("Failed to create credential definition: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
-				"msg":     "Failed to create schema: " + err.Error(),
+				"msg":     "Failed to create credential definition: " + err.Error(),
 			}
 			json.NewEncoder(w).Encode(res)
 			return
 		}
 
-		log.Info.Print("Schema created!")
+		log.Info.Print("Credential definition created!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(schema)
+		json.NewEncoder(w).Encode(definition)
 	}
 }
 
-func listSchemas(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func listCredentialDefinitions(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(listSchemasHandler(config, acapyClient), mdw...)
+	return server.ChainMiddleware(listCredentialDefinitionsHandler(config, acapyClient), mdw...)
 }
-func listSchemasHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func listCredentialDefinitionsHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -119,47 +119,51 @@ func listSchemasHandler(config *config.Config, acapyClient *acapy.Client) http.H
 
 		defer r.Body.Close()
 
-		log.Info.Print("Listing schemas...")
+		log.Info.Print("Listing credential definitions...")
 
+		credDefID := r.URL.Query().Get("cred_def_id")
+		issuerDID := r.URL.Query().Get("issuer_did")
 		schemaID := r.URL.Query().Get("schema_id")
 		schemaIssuerDID := r.URL.Query().Get("schema_issuer_did")
 		schemaName := r.URL.Query().Get("schema_name")
 		schemaVersion := r.URL.Query().Get("schema_version")
 
-		queryParams := models.LitSchemasParams{
+		queryParams := models.ListCredentialDefinitionsParams{
+			CredDefID:       credDefID,
+			IssuerDID:       issuerDID,
 			SchemaID:        schemaID,
 			SchemaIssuerDID: schemaIssuerDID,
 			SchemaName:      schemaName,
 			SchemaVersion:   schemaVersion,
 		}
 
-		schemas, err := acapyClient.ListSchemas(&queryParams)
+		definitions, err := acapyClient.ListCredentialDefinitions(&queryParams)
 		if err != nil {
-			log.Error.Printf("Failed to list schemas: %s", err.Error())
+			log.Error.Printf("Failed to list credential definitions: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
-				"msg":     "Failed to list schemas: " + err.Error(),
+				"msg":     "Failed to list credential definitions: " + err.Error(),
 			}
 			json.NewEncoder(w).Encode(res)
 			return
 		}
 
-		log.Info.Print("Schemas listed successfully!")
+		log.Info.Print("Credential definitions listed successfully!")
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(schemas)
+		json.NewEncoder(w).Encode(definitions)
 	}
 }
 
-func getSchema(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func getCredentialDefinition(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(getSchemaHandler(config, acapyClient), mdw...)
+	return server.ChainMiddleware(getCredentialDefinitionHandler(config, acapyClient), mdw...)
 }
-func getSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
+func getCredentialDefinitionHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -184,76 +188,25 @@ func getSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.Han
 
 		defer r.Body.Close()
 
-		log.Info.Println("Retrieving schema...")
+		log.Info.Println("Retrieving credential definition...")
 
-		schemaID := r.URL.Query().Get("schema_id")
+		credDefID := r.URL.Query().Get("cred_def_id")
 
-		schema, err := acapyClient.GetSchema(schemaID)
+		definition, err := acapyClient.GetCredentialDefinition(credDefID)
 		if err != nil {
-			log.Error.Printf("Failed to get schema: %s", err.Error())
+			log.Error.Printf("Failed to get credential definition: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
 				"success": false,
-				"msg":     "Failed to get schema: " + err.Error(),
+				"msg":     "Failed to get credential definition: " + err.Error(),
 			}
 			json.NewEncoder(w).Encode(res)
 			return
 		}
 
-		log.Info.Println("Schema retrieved successfully!")
+		log.Info.Println("Credential definition retrieved successfully!")
 
-		json.NewEncoder(w).Encode(schema)
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(definition.CredentialDefinition)
 	}
 }
-
-// func getCornerstoneSchema(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
-// 	mdw := []server.Middleware{
-// 		server.NewLogRequest,
-// 	}
-
-// 	return server.ChainMiddleware(getCornerstoneSchemaHandler(config, acapyClient), mdw...)
-// }
-// func getCornerstoneSchemaHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		header := w.Header()
-// 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
-// 		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
-// 		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-// 		if r.Method == "OPTIONS" {
-// 			w.WriteHeader(http.StatusOK)
-// 			return
-// 		}
-
-// 		if r.Method != http.MethodGet {
-// 			log.Warning.Print("Incorrect request method!")
-// 			w.WriteHeader(http.StatusMethodNotAllowed)
-// 			res := server.Res{
-// 				"success": false,
-// 				"msg":     "Warning: Incorrect request method!",
-// 			}
-// 			json.NewEncoder(w).Encode(res)
-// 			return
-// 		}
-
-// 		defer r.Body.Close()
-
-// 		log.Info.Println("Retrieving schema...")
-
-// 		schema, err := acapyClient.GetSchema(config.GetSchemaID())
-// 		if err != nil {
-// 			log.Error.Printf("Failed to get schema: %s", err.Error())
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			res := server.Res{
-// 				"success": false,
-// 				"msg":     "Failed to get schema: " + err.Error(),
-// 			}
-// 			json.NewEncoder(w).Encode(res)
-// 			return
-// 		}
-
-// 		log.Info.Println("Schema retrieved successfully!")
-
-// 		json.NewEncoder(w).Encode(schema)
-// 	}
-// }

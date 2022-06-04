@@ -2,24 +2,26 @@ package api
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"strconv"
 
 	acapy "cornerstone_issuer/pkg/acapy_client"
-	"cornerstone_issuer/pkg/cache"
 	"cornerstone_issuer/pkg/config"
 	"cornerstone_issuer/pkg/log"
 	"cornerstone_issuer/pkg/models"
 	"cornerstone_issuer/pkg/server"
+	"cornerstone_issuer/pkg/util"
 )
 
-func invitation(config *config.Config, acapyClient *acapy.Client, cache *cache.BigCache) http.HandlerFunc {
+func invitation(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(invitationHandler(config, acapyClient, cache), mdw...)
+	return server.ChainMiddleware(invitationHandler(config, acapyClient), mdw...)
 }
-func invitationHandler(config *config.Config, acapyClient *acapy.Client, cache *cache.BigCache) http.HandlerFunc {
+func invitationHandler(config *config.Config, acapyClient *acapy.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -46,6 +48,93 @@ func invitationHandler(config *config.Config, acapyClient *acapy.Client, cache *
 
 		log.Info.Println("Generating invitation...")
 
+		alias := r.URL.Query().Get("alias")
+		autoAccept, _ := strconv.ParseBool(r.URL.Query().Get("auto_accept"))
+		multiuse, _ := strconv.ParseBool(r.URL.Query().Get("multi_use"))
+		public, _ := strconv.ParseBool(r.URL.Query().Get("public"))
+
+		queryParams := models.CreateInvitationParams{
+			Alias:      alias,
+			AutoAccept: autoAccept,
+			MultiUse:   multiuse,
+			Public:     public,
+		}
+
+		var createInvitationRequest models.CreateInvitationRequest
+		err := json.NewDecoder(r.Body).Decode(&createInvitationRequest)
+		switch {
+		case err == io.EOF:
+			log.Warning.Print("Empty body!")
+		case err != nil:
+			log.Warning.Print("Failed to parse body: ", err)
+			w.WriteHeader(http.StatusBadRequest)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to parse body: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		invitation, err := acapyClient.CreateInvitation(createInvitationRequest, &queryParams)
+		if err != nil {
+			log.Error.Printf("Failed to generate invitation: %s", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to generate invitation: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		log.Info.Print("Generated invitation successfully!")
+
+		w.WriteHeader(http.StatusOK)
+		res := server.Res{
+			"success":       true,
+			"msg":           "Generated invitation successfully!",
+			"invitation":    invitation.Invitation,
+			"invitationURL": invitation.InvitationURL,
+		}
+		json.NewEncoder(w).Encode(res)
+	}
+}
+
+func multiInvitation(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+	mdw := []server.Middleware{
+		server.NewLogRequest,
+	}
+
+	return server.ChainMiddleware(multiInvitationHandler(config, acapyClient, cache), mdw...)
+}
+func multiInvitationHandler(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		header := w.Header()
+		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
+		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
+		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		if r.Method != http.MethodGet {
+			log.Warning.Print("Incorrect request method!")
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			res := server.Res{
+				"success": false,
+				"msg":     "Warning: Incorrect request method!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		defer r.Body.Close()
+
+		log.Info.Println("Generating multi invitation...")
+
 		invitationURL, err := cache.ReadString("invitationURL")
 		if err != nil {
 			log.Error.Printf("Failed to get invitation URL: %s", err.Error())
@@ -58,7 +147,7 @@ func invitationHandler(config *config.Config, acapyClient *acapy.Client, cache *
 			return
 		}
 
-		invitationObject, err := cache.ReadStruct("invitationObject")
+		invitation, err := cache.ReadStruct("invitation")
 		if err != nil {
 			log.Error.Printf("Failed to get invitation object: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -70,14 +159,14 @@ func invitationHandler(config *config.Config, acapyClient *acapy.Client, cache *
 			return
 		}
 
-		log.Info.Print("Invitation generated successfully!")
+		log.Info.Print("Generated multi invitation successfully!")
 
 		w.WriteHeader(http.StatusOK)
 		res := server.Res{
-			"success":          true,
-			"msg":              "Generated invitation successfully!",
-			"invitation":       invitationURL,
-			"invitationObject": invitationObject,
+			"success":       true,
+			"msg":           "Generated multi invitation successfully!",
+			"invitation":    invitation,
+			"invitationURL": invitationURL,
 		}
 		json.NewEncoder(w).Encode(res)
 	}

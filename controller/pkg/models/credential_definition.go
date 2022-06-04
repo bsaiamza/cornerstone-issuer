@@ -57,15 +57,11 @@ type Primary struct {
 }
 
 type R struct {
-	Commuterclassification string `json:"commuterclassification"`
-	MasterSecret           string `json:"master_secret"`
-	Lprnumber              string `json:"lprnumber"`
-	Familyname             string `json:"familyname"`
-	Lprcategory            string `json:"lprcategory"`
-	Gender                 string `json:"gender"`
-	Givenname              string `json:"givenname"`
-	Residentsince          string `json:"residentsince"`
-	Birthcountry           string `json:"birthcountry"`
-	ID                     string `json:"id"`
-	Birthdate              string `json:"birthdate"`
+	Forenames      string `json:"forenames"`
+	Dateofbirth    string `json:"dateofbirth"`
+	Idnumber       string `json:"idnumber"`
+	Countryofbirth string `json:"countryofbirth"`
+	Gender         string `json:"gender"`
+	MasterSecret   string `json:"master_secret"`
+	Surname        string `json:"surname"`
 }
