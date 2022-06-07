@@ -15,6 +15,6 @@ data:
     SERVER_PORT: "8180"                         # http
     SERVER_ADDRESS: 0.0.0.0:8180
     API_BASE_URL: /api/v1
-
+    DHAAPI: "dha-api-redis.app.svc.cluster.local/redis/getIDRecord?id="
 
     

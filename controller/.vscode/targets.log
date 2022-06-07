@@ -75,7 +75,15 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
+<<<<<<< HEAD
 VSCODE_CWD = /home/imtiyaaz
+=======
+INVERT = \033[7m
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/hr/8xcqn0yx5s92ksdx_8tb10l00000gn/T/vscode-ipc-6c958c00-8705-49ab-a610-9619dac9e73f.sock
+# environment
+VSCODE_CWD = /
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -145,7 +153,7 @@ VSCODE_CODE_CACHE_PATH = /home/imtiyaaz/.config/Code/CachedData/c3511e6c69bb3901
 # environment
 LOGNAME = imtiyaaz
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 NVM_CD_FLAGS = 
 # environment
@@ -247,9 +255,15 @@ VSCODE_PID = 2930
 
 # Directories
 
+<<<<<<< HEAD
 # . (device 66309, inode 21508469): 18 files, no impossibilities.
 
 # 18 files, no impossibilities in 1 directories.
+=======
+# . (device 16777220, inode 8812415718): 16 files, no impossibilities.
+
+# 16 files, no impossibilities in 1 directories.
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 # Implicit Rules
 
@@ -263,36 +277,74 @@ all:
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has not been updated.
+<<<<<<< HEAD
+=======
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
+<<<<<<< HEAD
 #  Last modified 2022-06-07 00:14:47.320142922
 #  File has been updated.
 #  Successfully updated.
+=======
+#  Last modified 2022-06-06 13:49:49
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 test:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 20):
+=======
+#  commands to execute (from `Makefile', line 20):
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 	go test -v -cover ./...
 
 push_docker:
 #  Implicit rule search has not been done.
+<<<<<<< HEAD
  
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 7):
 	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.5
+=======
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 7):
+	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.4
+	
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 build_docker:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 3):
 	docker build -t cornerstone-issuer:0.0.5 .
 	docker tag cornerstone-issuer:0.0.4 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.5
+=======
+#  commands to execute (from `Makefile', line 3):
+	docker build -t cornerstone-issuer:0.0.4 .
+	docker tag cornerstone-issuer:0.0.4 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.4
+	
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 # Not a target:
 .DEFAULT:
@@ -304,25 +356,46 @@ run:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 17):
+=======
+#  commands to execute (from `Makefile', line 17):
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 	go run cmd/main.go
 
 fmt:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+<<<<<<< HEAD
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 11):
+=======
+ 
+make: *** No rule to make target `all'.  Stop.
+
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 11):
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 	go fmt ./...
 
 lint:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 14):
 	golint ./...
 
 # files hash-table stats:
 # Load=10/1024=1%, Rehash=0, Collisions=0/20=0%
+=======
+#  commands to execute (from `Makefile', line 14):
+	golint ./...
+	
+
+# files hash-table stats:
+# Load=10/1024=1%, Rehash=0, Collisions=0/22=0%
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 # VPATH Search Paths
 
 # No 'vpath' search paths.
@@ -332,9 +405,13 @@ lint:
 # strcache buffers: 1 (0) / strings = 29 / storage = 273 B / avg = 9 B
 # current buf: size = 8162 B / used = 273 B / count = 29 / avg = 9 B
 
+<<<<<<< HEAD
 # strcache performance: lookups = 39 / hit rate = 25%
 # hash-table stats:
 # Load=29/8192=0%, Rehash=0, Collisions=1/39=3%
 # Finished Make data base on Tue Jun  7 00:26:41 2022
+=======
+# Finished Make data base on Tue Jun  7 10:28:22 2022
+>>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
  
