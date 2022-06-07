@@ -98,7 +98,6 @@ func (c *Client) ListConnections(params *models.ListConnectionsParams) (models.L
 	return connections, nil
 }
 
-
 // PingConnection pings a connection.
 func (c *Client) PingConnection(connectionID string) (models.PingConnectionResponse, error) {
 	ping := struct {

@@ -65,9 +65,100 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 
 		// Step 1: Validate ID number
 		log.Info.Println("Validating ID number...")
+		idNumber := data.IDNumber
+		gender := data.Gender
+		country := data.CountryOfBirth
+		id, err := util.IDValidator(idNumber, gender, country)
+		if err != nil {
+			log.Error.Printf("ID validation failed: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "ID validation failed: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		log.Info.Println("ID Validation passed")
 
 		// Step 2: Call DHA API using ID number to get user data and compare
 		log.Info.Println("Calling DHA API to get user data...")
+
+		client := &http.Client{}
+		req, err := http.NewRequest(http.MethodGet, "https://dhaapi.iamza-sandbox.com/redis/getIDRecord", nil)
+		if err != nil {
+			log.Error.Printf("Failed to create request for DHA API call: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to create request for DHA API call: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+
+		// appending to existing query args
+		q := req.URL.Query()
+		q.Add("id", id)
+
+		// assign encoded query string to http request
+		req.URL.RawQuery = q.Encode()
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Error.Printf("Failed to get user data from DHA API: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to get user data from DHA API: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		defer resp.Body.Close()
+
+		var dhaData models.DhaData
+		err = json.NewDecoder(resp.Body).Decode(&dhaData)
+		if err != nil {
+			log.Error.Printf("Failed to decode DHA data: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to decode DHA data: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		subGender := string(data.Gender[0])
+		dob := string(data.DateOfBirth[0:4]) + "/" + string(data.DateOfBirth[5:7]) + "/" + string(data.DateOfBirth[8:10])
+		countryOfBirth := ""
+		if data.CountryOfBirth == "South Africa" {
+			countryOfBirth = "RSA"
+		}
+
+		// fmt.Println("IDs: " + dhaData.IDNumber + "-" + id)
+		// fmt.Println("Names: " + dhaData.Forenames + "-" + data.Forenames)
+		// fmt.Println("Surname: " + dhaData.Surname + "-" + data.Surname)
+		// fmt.Println("Gender: " + dhaData.Gender + "-" + subGender)
+		// fmt.Println("DOB: " + dhaData.DateOfBirth + "-" + dob)
+		// fmt.Println("Country: " + dhaData.CountryOfBirth + "-" + countryOfBirth)
+
+		if !(dhaData.IDNumber == id && dhaData.Forenames == data.Forenames && dhaData.Surname == data.Surname &&
+			dhaData.Gender == subGender && dhaData.DateOfBirth == dob && dhaData.CountryOfBirth == countryOfBirth) {
+			log.Error.Println("Failed: user data does not match DHA data!")
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed: data does not match DHA data!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		// fmt.Println(dhaData)
 
 		// Step 3: Create invitation
 		request := models.CreateInvitationRequest{}
@@ -138,7 +229,7 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 			prefix = "Ms/Mrs "
 		}
 		if data.Gender == "Male" {
-			prefix = "Mr " 
+			prefix = "Mr "
 		}
 
 		err = util.SendEmail(prefix+data.Surname, data.Email, invitation.Invitation.RecipientKeys[0], qrCodePng)
@@ -166,7 +257,13 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 
 		log.Info.Println("Cornerstone data prepared!")
 
-		w.WriteHeader(http.StatusOK)
+		// w.Write(qrCodePng)
+		// w.Header().Set("Content-Type", "image/png")
+		res := server.Res{
+			"success":    true,
+			"credential": invitation.InvitationURL,
+		}
+		json.NewEncoder(w).Encode(res)
 	}
 }
 
@@ -216,6 +313,20 @@ func issueCredentialHandler(config *config.Config, acapyClient *acapy.Client, ca
 		}
 
 		if request.State == "response" {
+			if request.InvitationMode == "multi" {
+				_, err := acapyClient.PingConnection(request.ConnectionID)
+				if err != nil {
+					log.Error.Printf("Failed to ping connection: %s", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					res := server.Res{
+						"success": false,
+						"msg":     "Failed to ping connection: " + err.Error(),
+					}
+					json.NewEncoder(w).Encode(res)
+					return
+				}
+			}
+
 			_, err := acapyClient.PingConnection(request.ConnectionID)
 			if err != nil {
 				log.Error.Printf("Failed to ping connection: %s", err)

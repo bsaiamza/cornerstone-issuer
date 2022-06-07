@@ -22,26 +22,25 @@ spec:
         app: cornerstone-issuer-agent
     spec:
       containers:
-      - name: cornerstone-issuer-agent
-        image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.3
-        imagePullPolicy: Always
-        ports:
-        - name: agnt-admin-port
-          containerPort: 8001
-          protocol: TCP
-        - name: agnt-http-port
-          containerPort: 8000
-          protocol: TCP
-        envFrom:
-          - configMapRef:
-              name: cornerstone-issuer-agent-configmap
-        command: [
+        - name: cornerstone-issuer-agent
+          image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.3
+          imagePullPolicy: Always
+          ports:
+            - name: agnt-admin-port
+              containerPort: 8001
+              protocol: TCP
+            - name: agnt-http-port
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: cornerstone-issuer-agent-configmap
+          command: [
               "/bin/bash",
-              "-c", 
+              "-c",
               "aca-py start \
-              --admin '0.0.0.0' 8001 \  
+              --admin '0.0.0.0' 8001 \
               --inbound-transport http '0.0.0.0' 8000 \
-              --outbound-transport http 
-              --connections-invite",]
-
-
+              --outbound-transport http \
+              --connections-invite",
+            ]

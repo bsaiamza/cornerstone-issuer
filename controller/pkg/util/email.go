@@ -43,8 +43,10 @@ func SendEmail(name, recipientEmail, qrImgName string, qrCode []byte) error {
 
 	//SMTP Server
 	server.Host = "smtp.gmail.com"
+	// server.Host = "smtp.office365.com"
 	server.Port = 587
 	server.Username = "imtiyaazleslie@gmail.com"
+	// server.Username = "aws_iamzanet@bankservafrica.com"
 	server.Password = "bxhiglfjowsgpwyj"
 	server.Encryption = mail.EncryptionSTARTTLS
 
@@ -68,6 +70,7 @@ func SendEmail(name, recipientEmail, qrImgName string, qrCode []byte) error {
 	email := mail.NewMSG()
 
 	email.SetFrom("imtiyaazleslie@gmail.com").
+		// email.SetFrom("aws_iamzanet@bankservafrica.com").
 		AddTo(recipientEmail).
 		// AddCc("otherto@example.com").
 		SetSubject("Get your Cornerstone Credential")

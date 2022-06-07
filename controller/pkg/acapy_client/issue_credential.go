@@ -31,9 +31,9 @@ func (c *Client) ListCredentialRecords(params *models.ListCredentialRecordsParam
 		}
 	}
 
-	err := c.get("/issue-credential-2.0/records", queryParams, &credentialRecords)
+	err := c.get("/issue-credential/records", queryParams, &credentialRecords)
 	if err != nil {
-		log.Error.Printf("Failed on ACA-py /issue-credential-2.0/records: %s", err.Error())
+		log.Error.Printf("Failed on ACA-py /issue-credential/records: %s", err.Error())
 		return models.ListCredentialRecordsResponse{}, err
 	}
 	return credentialRecords, nil
