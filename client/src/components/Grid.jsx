@@ -5,8 +5,10 @@ const GridComponent = ({
   container,
   item,
   justify,
+  justifyContent,
   md,
   spacing,
+  sx,
   xs,
 }) => {
   return (
@@ -14,8 +16,10 @@ const GridComponent = ({
       container={container}
       item={item}
       justify={justify}
+      justifyContent={justifyContent}
       md={md}
       spacing={spacing}
+      sx={sx}
       xs={xs}
     >
       {children}

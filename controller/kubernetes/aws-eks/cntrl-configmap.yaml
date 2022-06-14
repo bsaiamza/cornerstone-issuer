@@ -6,15 +6,13 @@ metadata:
   namespace: cornerstone-issuer
 data:
   # acapy variables
-    ACAPY_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:8001"       # socket - ?
-    ACAPY_ADMIN_API_KEY: secret
-    # client variables
-    CLIENT_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:3000"      # socket
-    # server variables
-    SERVER_HOST: "0.0.0.0"
-    SERVER_PORT: "8180"                         # http
-    SERVER_ADDRESS: 0.0.0.0:8180
-    API_BASE_URL: /api/v1
-    DHAAPI: "dha-api-redis.app.svc.cluster.local/redis/getIDRecord?id="
-
-    
+  ACAPY_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:8001" # socket - ?
+  ACAPY_ADMIN_API_KEY: secret
+  # client variables
+  CLIENT_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:3000" # socket
+  # server variables
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8180" # http
+  SERVER_ADDRESS: 0.0.0.0:8180
+  API_BASE_URL: /api/v1
+  DHAAPI: "http://dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="

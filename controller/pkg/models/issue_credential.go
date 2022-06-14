@@ -188,3 +188,26 @@ type BlindedMSCorrectnessProof struct {
 type MCaps struct {
 	MasterSecret string `json:"master_secret"`
 }
+
+type CredentialWebhook struct {
+	CredentialExchangeID   string                 `json:"credential_exchange_id"`
+	ConnectionID           string                 `json:"connection_id"`
+	ThreadID               string                 `json:"thread_id"`
+	ParentThreadID         string                 `json:"parent_thread_id"`
+	Initiator              string                 `json:"initiator"`
+	State                  string                 `json:"state"`
+	CredentialDefinitionID string                 `json:"credential_definition_id"`
+	SchemaID               string                 `json:"schema_id"`
+	CredentialProposalDict CredentialProposalDict `json:"credential_proposal_dict"`
+	CredentialOffer        CredentialOffer        `json:"credential_offer"`
+	CredentialRequest      CredentialRequest      `json:"credential_request"`
+	CredentialRequestMeta  CredentialRequestMeta  `json:"credential_request_meta"`
+	CredentialID           string                 `json:"credential_id"`
+	RawCredential          string                 `json:"raw_credential"`
+	Credential             Credential             `json:"credential"`
+	AutoOffer              bool                   `json:"auto_offer"`
+	AutoIssue              bool                   `json:"auto_issue"`
+	ErrorMsg               string                 `json:"error_msg"`
+}
+
+type CredentialRequestMeta struct{}

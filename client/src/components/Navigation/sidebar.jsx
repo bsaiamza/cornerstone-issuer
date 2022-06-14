@@ -2,12 +2,13 @@
 import { Divider, Drawer } from '@mui/material'
 // mui5 icons
 import {
+  Article,
   Badge,
-  FileCopy,
+  // FileCopy,
   Fingerprint,
   Home,
   LeakAdd,
-  Schema,
+  // Schema,
 } from '@mui/icons-material'
 // react-router-dom
 import { NavLink } from 'react-router-dom'
@@ -61,7 +62,7 @@ const Sidebar = ({ handleCloseDrawer, openDrawer }) => {
           </ListItemComponent>
         </NavLink>
 
-        <NavLink
+        {/* <NavLink
           to="/schemas"
           className={({ isActive }) =>
             openDrawer
@@ -103,7 +104,7 @@ const Sidebar = ({ handleCloseDrawer, openDrawer }) => {
               <ListItemTextComponent primary="Definitions" />
             </ListItemButtonComponent>
           </ListItemComponent>
-        </NavLink>
+        </NavLink> */}
 
         <NavLink
           to="/connections"
@@ -128,7 +129,7 @@ const Sidebar = ({ handleCloseDrawer, openDrawer }) => {
         </NavLink>
 
         <NavLink
-          to="/credentials"
+          to="/issue-credential"
           className={({ isActive }) =>
             openDrawer
               ? isActive
@@ -144,12 +145,34 @@ const Sidebar = ({ handleCloseDrawer, openDrawer }) => {
               <ListItemIconComponent>
                 <Badge />
               </ListItemIconComponent>
-              <ListItemTextComponent primary="Credentials" />
+              <ListItemTextComponent primary="Issue Credential" />
             </ListItemButtonComponent>
           </ListItemComponent>
         </NavLink>
 
         <NavLink
+          to="/records"
+          className={({ isActive }) =>
+            openDrawer
+              ? isActive
+                ? 'link-active'
+                : 'link'
+              : isActive
+              ? 'link-active'
+              : 'link'
+          }
+        >
+          <ListItemComponent disablePadding>
+            <ListItemButtonComponent onClick={handleCloseDrawer}>
+              <ListItemIconComponent>
+                <Article />
+              </ListItemIconComponent>
+              <ListItemTextComponent primary="Records" />
+            </ListItemButtonComponent>
+          </ListItemComponent>
+        </NavLink>
+
+        {/* <NavLink
           to="/holder"
           className={({ isActive }) =>
             openDrawer
@@ -169,7 +192,7 @@ const Sidebar = ({ handleCloseDrawer, openDrawer }) => {
               <ListItemTextComponent primary="Holder Form" />
             </ListItemButtonComponent>
           </ListItemComponent>
-        </NavLink>
+        </NavLink> */}
       </ListComponent>
     </Drawer>
   )

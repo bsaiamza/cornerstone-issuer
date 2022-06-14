@@ -56,6 +56,11 @@ func (c *Config) GetClientURL() string {
 	return getEnv("CLIENT_URL")
 }
 
+// GetDHAAPI returns the DHA API.
+func (c *Config) GetDHAAPI() string {
+	return getEnv("DHAAPI")
+}
+
 // GetServerAddress returns the server address.
 func (c *Config) GetServerAddress() string {
 	return getEnv("SERVER_ADDRESS")

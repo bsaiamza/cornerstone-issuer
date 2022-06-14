@@ -130,7 +130,7 @@ func (bc *BigCache) Delete(id string) {
 	bc.data.Delete(dataKey(id))
 }
 
-func (bc *BigCache) UpdateDataCache(invitation_key string, data models.CornerstoneData) error {
+func (bc *BigCache) UpdateDataCache(invitation_key string, data models.CredentialRequestData) error {
 	bs, err := json.Marshal(&data)
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
@@ -139,24 +139,52 @@ func (bc *BigCache) UpdateDataCache(invitation_key string, data models.Cornersto
 	return bc.cornerstoneData.Set(dataKey(invitation_key), bs)
 }
 
-func (bc *BigCache) ReadDataCache(invitation_key string) (models.CornerstoneData, error) {
+// func (bc *BigCache) UpdateDataCache(invitation_key string, data models.CornerstoneData) error {
+// 	bs, err := json.Marshal(&data)
+// 	if err != nil {
+// 		return fmt.Errorf("marshal: %w", err)
+// 	}
+
+// 	return bc.cornerstoneData.Set(dataKey(invitation_key), bs)
+// }
+
+func (bc *BigCache) ReadDataCache(invitation_key string) (models.CredentialRequestData, error) {
 	bs, err := bc.cornerstoneData.Get(dataKey(invitation_key))
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {
-			return models.CornerstoneData{}, err
+			return models.CredentialRequestData{}, err
 		}
 
-		return models.CornerstoneData{}, fmt.Errorf("get: %w", err)
+		return models.CredentialRequestData{}, fmt.Errorf("get: %w", err)
 	}
 
-	var cornerstoneData models.CornerstoneData
+	var cornerstoneData models.CredentialRequestData
 	err = json.Unmarshal(bs, &cornerstoneData)
 	if err != nil {
-		return models.CornerstoneData{}, fmt.Errorf("unmarshal: %w", err)
+		return models.CredentialRequestData{}, fmt.Errorf("unmarshal: %w", err)
 	}
 
 	return cornerstoneData, nil
 }
+
+// func (bc *BigCache) ReadDataCache(invitation_key string) (models.CornerstoneData, error) {
+// 	bs, err := bc.cornerstoneData.Get(dataKey(invitation_key))
+// 	if err != nil {
+// 		if errors.Is(err, bigcache.ErrEntryNotFound) {
+// 			return models.CornerstoneData{}, err
+// 		}
+
+// 		return models.CornerstoneData{}, fmt.Errorf("get: %w", err)
+// 	}
+
+// 	var cornerstoneData models.CornerstoneData
+// 	err = json.Unmarshal(bs, &cornerstoneData)
+// 	if err != nil {
+// 		return models.CornerstoneData{}, fmt.Errorf("unmarshal: %w", err)
+// 	}
+
+// 	return cornerstoneData, nil
+// }
 
 func (bc *BigCache) DeleteDataCache(invitation_key string) {
 	bc.cornerstoneData.Delete(dataKey(invitation_key))

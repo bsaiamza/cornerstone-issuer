@@ -14,9 +14,9 @@ const Footer = lazy(() => import('./components/Footer'))
 const Navigation = lazy(() => import('./components/Navigation'))
 // pages
 const ConnectionPage = lazy(() => import('./pages/Connection'))
-const CredentialPage = lazy(() => import('./pages/Credential'))
+const CredentialRecordsPage = lazy(() => import('./pages/Records'))
 const DefinitionPage = lazy(() => import('./pages/Definition'))
-const HolderPage = lazy(() => import('./pages/Holder'))
+const CredentialPage = lazy(() => import('./pages/Credential'))
 const HomePage = lazy(() => import('./pages/Home'))
 const NotFoundPage = lazy(() => import('./pages/NotFound'))
 const SchemaPage = lazy(() => import('./pages/Schema'))
@@ -32,8 +32,8 @@ function App() {
           <Route path="schemas" element={<SchemaPage />} />
           <Route path="credential-definitions" element={<DefinitionPage />} />
           <Route path="connections" element={<ConnectionPage />} />
-          <Route path="credentials" element={<CredentialPage />} />
-          <Route path="holder" element={<HolderPage />} />
+          <Route path="issue-credential" element={<CredentialPage />} />
+          <Route path="records" element={<CredentialRecordsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
 

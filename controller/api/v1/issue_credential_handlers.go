@@ -2,9 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	acapy "cornerstone_issuer/pkg/acapy_client"
 	"cornerstone_issuer/pkg/config"
@@ -16,14 +18,14 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
-func prepareCornerstoneData(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+func displayCredentialRequest(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.NewLogRequest,
 	}
 
-	return server.ChainMiddleware(prepareCornerstoneDataHandler(config, acapyClient, cache), mdw...)
+	return server.ChainMiddleware(displayCredentialRequestHandler(config, acapyClient, cache), mdw...)
 }
-func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+func displayCredentialRequestHandler(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
@@ -48,9 +50,9 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 
 		defer r.Body.Close()
 
-		log.Info.Println("Preparing credential data...")
+		log.Info.Println("Creating credential request...")
 
-		var data models.PrepareCornerstoneData
+		var data models.CredentialRequestData
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			log.Error.Printf("Failed to decode credential data: %s", err)
@@ -85,7 +87,7 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 		log.Info.Println("Calling DHA API to get user data...")
 
 		client := &http.Client{}
-		req, err := http.NewRequest(http.MethodGet, "https://dhaapi.iamza-sandbox.com/redis/getIDRecord", nil)
+		req, err := http.NewRequest(http.MethodGet, "http://"+config.GetDHAAPI()+id, nil)
 		if err != nil {
 			log.Error.Printf("Failed to create request for DHA API call: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -100,11 +102,11 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 		req.Header.Set("Content-Type", "application/json")
 
 		// appending to existing query args
-		q := req.URL.Query()
-		q.Add("id", id)
+		// q := req.URL.Query()
+		// q.Add("id", id)
 
 		// assign encoded query string to http request
-		req.URL.RawQuery = q.Encode()
+		// req.URL.RawQuery = q.Encode()
 
 		resp, err := client.Do(req)
 		if err != nil {
@@ -120,6 +122,32 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 
 		defer resp.Body.Close()
 
+		// if resp.StatusCode == 400 {
+		// 	var dhaAPIError models.DhaAPIError
+		// 	err = json.NewDecoder(resp.Body).Decode(&dhaAPIError)
+		// 	if err != nil {
+		// 		log.Error.Printf("Failed to decode DHA bad request data: %s", err)
+		// 		w.WriteHeader(http.StatusInternalServerError)
+		// 		res := server.Res{
+		// 			"success": false,
+		// 			"msg":     "Failed to decode DHA bad request data: " + err.Error(),
+		// 		}
+		// 		json.NewEncoder(w).Encode(res)
+		// 		return
+		// 	}
+		// }
+
+		if resp.StatusCode == 400 {
+			log.Error.Println("Failed to find user in DHA records!")
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to find user in DHA records!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
 		var dhaData models.DhaData
 		err = json.NewDecoder(resp.Body).Decode(&dhaData)
 		if err != nil {
@@ -133,22 +161,34 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 			return
 		}
 
-		subGender := string(data.Gender[0])
-		dob := string(data.DateOfBirth[0:4]) + "/" + string(data.DateOfBirth[5:7]) + "/" + string(data.DateOfBirth[8:10])
-		countryOfBirth := ""
+		dhaID := dhaData.IDNumber
+		userID := id
+		dhaNames := strings.ToLower(dhaData.Forenames)
+		userNames := strings.ToLower(data.Forenames)
+		dhaSurname := strings.ToLower(dhaData.Surname)
+		userSurname := strings.ToLower(data.Surname)
+		dhaGender := strings.ToLower(dhaData.Gender)
+		userGender := strings.ToLower(string(data.Gender[0]))
+		dhaDOB := dhaData.DateOfBirth
+		userDOB := string(data.DateOfBirth[0:4]) + "/" + string(data.DateOfBirth[5:7]) + "/" + string(data.DateOfBirth[8:10])
+		dhaCOB := dhaData.CountryOfBirth
+		userCOB := ""
 		if data.CountryOfBirth == "South Africa" {
-			countryOfBirth = "RSA"
+			userCOB = "RSA"
 		}
 
-		// fmt.Println("IDs: " + dhaData.IDNumber + "-" + id)
-		// fmt.Println("Names: " + dhaData.Forenames + "-" + data.Forenames)
-		// fmt.Println("Surname: " + dhaData.Surname + "-" + data.Surname)
-		// fmt.Println("Gender: " + dhaData.Gender + "-" + subGender)
-		// fmt.Println("DOB: " + dhaData.DateOfBirth + "-" + dob)
-		// fmt.Println("Country: " + dhaData.CountryOfBirth + "-" + countryOfBirth)
+		fmt.Println("\n\n")
+		fmt.Println("DHA Data vs User Data")
+		fmt.Println("IDs: " + dhaID + " - " + userID)
+		fmt.Println("Names: " + dhaNames + " - " + userNames)
+		fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
+		fmt.Println("Gender: " + dhaGender + " - " + userGender)
+		fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+		fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+		fmt.Println("\n\n")
 
-		if !(dhaData.IDNumber == id && dhaData.Forenames == data.Forenames && dhaData.Surname == data.Surname &&
-			dhaData.Gender == subGender && dhaData.DateOfBirth == dob && dhaData.CountryOfBirth == countryOfBirth) {
+		if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
+			dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
 			log.Error.Println("Failed: user data does not match DHA data!")
 			w.WriteHeader(http.StatusInternalServerError)
 			res := server.Res{
@@ -158,7 +198,216 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 			json.NewEncoder(w).Encode(res)
 			return
 		}
-		// fmt.Println(dhaData)
+
+		// Step 3: Create invitation
+		request := models.CreateInvitationRequest{}
+
+		alias := r.URL.Query().Get("alias")
+		autoAccept, _ := strconv.ParseBool(r.URL.Query().Get("auto_accept"))
+		multiuse, _ := strconv.ParseBool(r.URL.Query().Get("multi_use"))
+		public, _ := strconv.ParseBool(r.URL.Query().Get("public"))
+
+		queryParams := models.CreateInvitationParams{
+			Alias:      alias,
+			AutoAccept: autoAccept,
+			MultiUse:   multiuse,
+			Public:     public,
+		}
+
+		invitation, err := acapyClient.CreateInvitation(request, &queryParams)
+		if err != nil {
+			log.Error.Printf("Failed to prepare cornerstone data: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to prepare cornerstone data: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		// Step 4: Cache user data
+		err = cache.UpdateDataCache(invitation.Invitation.RecipientKeys[0], data)
+		if err != nil {
+			log.Error.Printf("Failed to cache cornerstone data: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to cache cornerstone data: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		log.Info.Println("Credential request created!")
+
+		w.WriteHeader(http.StatusOK)
+		res := server.Res{
+			"success":    true,
+			"credential": invitation.InvitationURL,
+		}
+		json.NewEncoder(w).Encode(res)
+	}
+}
+
+func emailCredentialRequest(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+	mdw := []server.Middleware{
+		server.NewLogRequest,
+	}
+
+	return server.ChainMiddleware(emailCredentialRequestHandler(config, acapyClient, cache), mdw...)
+}
+func emailCredentialRequestHandler(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		header := w.Header()
+		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
+		header.Add("Access-Control-Allow-Methods", "POST, OPTIONS")
+		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		if r.Method != http.MethodPost {
+			log.Warning.Print("Incorrect request method!")
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			res := server.Res{
+				"success": false,
+				"msg":     "Warning: Incorrect request method!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		defer r.Body.Close()
+
+		log.Info.Println("Creating credential request...")
+
+		var data models.CredentialRequestData
+		err := json.NewDecoder(r.Body).Decode(&data)
+		if err != nil {
+			log.Error.Printf("Failed to decode credential data: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to decode credential data: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		// Step 1: Validate ID number
+		log.Info.Println("Validating ID number...")
+		idNumber := data.IDNumber
+		gender := data.Gender
+		country := data.CountryOfBirth
+		id, err := util.IDValidator(idNumber, gender, country)
+		if err != nil {
+			log.Error.Printf("ID validation failed: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "ID validation failed: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		log.Info.Println("ID Validation passed")
+
+		// Step 2: Call DHA API using ID number to get user data and compare
+		log.Info.Println("Calling DHA API to get user data...")
+
+		client := &http.Client{}
+		req, err := http.NewRequest(http.MethodGet, "http://"+config.GetDHAAPI()+id, nil)
+		if err != nil {
+			log.Error.Printf("Failed to create request for DHA API call: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to create request for DHA API call: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Error.Printf("Failed to get user data from DHA API: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to get user data from DHA API: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		defer resp.Body.Close()
+
+		if resp.StatusCode == 400 {
+			log.Error.Println("Failed to find user in DHA records!")
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to find user in DHA records!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		var dhaData models.DhaData
+		err = json.NewDecoder(resp.Body).Decode(&dhaData)
+		if err != nil {
+			log.Error.Printf("Failed to decode DHA data: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to decode DHA data: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		dhaID := dhaData.IDNumber
+		userID := id
+		dhaNames := strings.ToLower(dhaData.Forenames)
+		userNames := strings.ToLower(data.Forenames)
+		dhaSurname := strings.ToLower(dhaData.Surname)
+		userSurname := strings.ToLower(data.Surname)
+		dhaGender := strings.ToLower(dhaData.Gender)
+		userGender := strings.ToLower(string(data.Gender[0]))
+		dhaDOB := dhaData.DateOfBirth
+		userDOB := string(data.DateOfBirth[0:4]) + "/" + string(data.DateOfBirth[5:7]) + "/" + string(data.DateOfBirth[8:10])
+		dhaCOB := dhaData.CountryOfBirth
+		userCOB := ""
+		if data.CountryOfBirth == "South Africa" {
+			userCOB = "RSA"
+		}
+
+		fmt.Println("\n\n")
+		fmt.Println("DHA Data vs User Data")
+		fmt.Println("IDs: " + dhaID + " - " + userID)
+		fmt.Println("Names: " + dhaNames + " - " + userNames)
+		fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
+		fmt.Println("Gender: " + dhaGender + " - " + userGender)
+		fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+		fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+		fmt.Println("\n\n")
+
+		if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
+			dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
+			log.Error.Println("Failed: user data does not match DHA data!")
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed: data does not match DHA data!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
 
 		// Step 3: Create invitation
 		request := models.CreateInvitationRequest{}
@@ -201,16 +450,7 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 		}
 
 		// Step 5: Cache user data
-		cornerstoneData := models.CornerstoneData{
-			IDNumber:       data.IDNumber,
-			Surname:        data.Surname,
-			Forenames:      data.Forenames,
-			Gender:         data.Gender,
-			DateOfBirth:    data.DateOfBirth,
-			CountryOfBirth: data.CountryOfBirth,
-		}
-
-		err = cache.UpdateDataCache(invitation.Invitation.RecipientKeys[0], cornerstoneData)
+		err = cache.UpdateDataCache(invitation.Invitation.RecipientKeys[0], data)
 		if err != nil {
 			log.Error.Printf("Failed to cache cornerstone data: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -223,7 +463,6 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 		}
 
 		// Step 6: Send email
-
 		var prefix string
 		if data.Gender == "Female" {
 			prefix = "Ms/Mrs "
@@ -232,7 +471,7 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 			prefix = "Mr "
 		}
 
-		err = util.SendEmail(prefix+data.Surname, data.Email, invitation.Invitation.RecipientKeys[0], qrCodePng)
+		err = util.SendCredentialEmail(prefix+data.Surname, data.Email, invitation.Invitation.RecipientKeys[0], qrCodePng)
 		if err != nil {
 			log.Warning.Print("Failed to send credential email: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -255,15 +494,9 @@ func prepareCornerstoneDataHandler(config *config.Config, acapyClient *acapy.Cli
 			// json.NewEncoder(w).Encode(res)
 		}
 
-		log.Info.Println("Cornerstone data prepared!")
+		log.Info.Println("Created credential request!")
 
-		// w.Write(qrCodePng)
-		// w.Header().Set("Content-Type", "image/png")
-		res := server.Res{
-			"success":    true,
-			"credential": invitation.InvitationURL,
-		}
-		json.NewEncoder(w).Encode(res)
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -443,6 +676,18 @@ func issueCredentialHandler(config *config.Config, acapyClient *acapy.Client, ca
 				return
 			}
 
+			err = cache.UpdateDataCache(request.ConnectionID, cornerstoneData)
+			if err != nil {
+				log.Error.Printf("Failed to cache cornerstone data: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Res{
+					"success": false,
+					"msg":     "Failed to cache cornerstone data: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
 			cache.DeleteDataCache(request.InvitationKey)
 
 			log.Info.Println("Issued credential successfully!")
@@ -451,6 +696,101 @@ func issueCredentialHandler(config *config.Config, acapyClient *acapy.Client, ca
 			res := server.Res{
 				"success": true,
 				"msg":     "Issued credential successfully!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+	}
+}
+
+func credentialPing(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+	mdw := []server.Middleware{
+		server.NewLogRequest,
+	}
+
+	return server.ChainMiddleware(credentialPingHandler(config, acapyClient, cache), mdw...)
+}
+func credentialPingHandler(config *config.Config, acapyClient *acapy.Client, cache *util.BigCache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		header := w.Header()
+		header.Add("Access-Control-Allow-Origin", config.GetClientURL())
+		header.Add("Access-Control-Allow-Methods", "POST, OPTIONS")
+		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		if r.Method != http.MethodPost {
+			log.Warning.Print("Incorrect request method!")
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			res := server.Res{
+				"success": false,
+				"msg":     "Warning: Incorrect request method!",
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		defer r.Body.Close()
+
+		var request models.CredentialWebhook
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			log.Error.Printf("Fail to decode request body: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to decode request body: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		cornerstoneData, err := cache.ReadDataCache(request.ConnectionID)
+		if err != nil {
+			log.Error.Printf("Failed to read cornerstone data: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Res{
+				"success": false,
+				"msg":     "Failed to read cornerstone data: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		if request.State == "credential_issued" && cornerstoneData.Email != "" {
+			log.Info.Println("Notify user about issued credential..")
+
+			var prefix string
+			if cornerstoneData.Gender == "Female" {
+				prefix = "Ms/Mrs "
+			}
+			if cornerstoneData.Gender == "Male" {
+				prefix = "Mr "
+			}
+
+			err = util.SendNotificationEmail(prefix+cornerstoneData.Surname, cornerstoneData.Email)
+			if err != nil {
+				log.Warning.Print("Failed to send credential email: ", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Res{
+					"success": false,
+					"msg":     "Failed to send credential email: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			cache.DeleteDataCache(request.ConnectionID)
+
+			log.Info.Println("Notified user about issued credential successfully!")
+
+			w.WriteHeader(http.StatusOK)
+			res := server.Res{
+				"success": true,
+				"msg":     "Notified user about issued credential successfully!",
 			}
 			json.NewEncoder(w).Encode(res)
 			return

@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jun  7 00:26:41 2022
+# Make data base, printed on Thu Jun  9 14:48:29 2022
 
 # Variables
 
@@ -75,15 +75,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
-<<<<<<< HEAD
 VSCODE_CWD = /home/imtiyaaz
-=======
-INVERT = \033[7m
-# environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/hr/8xcqn0yx5s92ksdx_8tb10l00000gn/T/vscode-ipc-6c958c00-8705-49ab-a610-9619dac9e73f.sock
-# environment
-VSCODE_CWD = /
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -91,11 +83,11 @@ XDG_SESSION_PATH = /org/freedesktop/DisplayManager/Session0
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /usr/local/go-1.18.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/imtiyaaz/Android/sdk/emulator:/home/imtiyaaz/Android/sdk/platform-tools
+PATH = /usr/local/go-1.18.1/bin:/home/imtiyaaz/.nvm/versions/node/v16.15.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/imtiyaaz/Android/sdk/emulator:/home/imtiyaaz/Android/sdk/platform-tools:/home/imtiyaaz/Documents/apps/go/bin:/home/imtiyaaz/Android/sdk/emulator:/home/imtiyaaz/Android/sdk/platform-tools:/home/imtiyaaz/Android/sdk/emulator:/home/imtiyaaz/Android/sdk/platform-tools
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-SESSION_MANAGER = local/imtiyaaz-HP-ZBook-Workstation:@/tmp/.ICE-unix/1771,unix/imtiyaaz-HP-ZBook-Workstation:/tmp/.ICE-unix/1771
+SESSION_MANAGER = local/imtiyaaz-HP-ZBook-Workstation:@/tmp/.ICE-unix/1775,unix/imtiyaaz-HP-ZBook-Workstation:/tmp/.ICE-unix/1775
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -113,13 +105,11 @@ XDG_GREETER_DATA_DIR = /var/lib/lightdm-data/imtiyaaz
 # environment
 LS_COLORS = 
 # environment
-INSIDE_NEMO_PYTHON = 
-# environment
 XDG_SESSION_DESKTOP = cinnamon
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 1113005
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2879
 # automatic
 %F = $(notdir $%)
 # environment
@@ -137,7 +127,7 @@ QT_QPA_PLATFORMTHEME = qt5ct
 # environment
 XDG_SEAT = seat0
 # environment
-SSH_AGENT_PID = 1843
+SSH_AGENT_PID = 1847
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = X-Cinnamon
 # environment
@@ -153,7 +143,7 @@ VSCODE_CODE_CACHE_PATH = /home/imtiyaaz/.config/Code/CachedData/c3511e6c69bb3901
 # environment
 LOGNAME = imtiyaaz
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 NVM_CD_FLAGS = 
 # environment
@@ -173,7 +163,7 @@ MAKECMDGOALS := all
 # environment
 SHLVL = 0
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-15ab4781-2d41-4e04-b2a0-11778c4f1b1b.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-8d366f85-4e5a-4969-8305-d826df69d926.sock
 # environment
 XDG_SESSION_ID = c2
 # environment
@@ -213,8 +203,6 @@ GDK_BACKEND = x11
 # automatic
 +F = $(notdir $+)
 # environment
-NO_AT_BRIDGE = 1
-# environment
 CINNAMON_VERSION = 5.2.7
 # environment
 QT_ACCESSIBILITY = 1
@@ -245,9 +233,9 @@ GJS_DEBUG_OUTPUT = stderr
 # environment
 LANG = C
 # environment
-VSCODE_PID = 2930
+VSCODE_PID = 2879
 # variable set hash-table stats:
-# Load=113/1024=11%, Rehash=0, Collisions=9/138=7%
+# Load=111/1024=11%, Rehash=0, Collisions=9/136=7%
 
 # Pattern-specific Variable Values
 
@@ -255,15 +243,9 @@ VSCODE_PID = 2930
 
 # Directories
 
-<<<<<<< HEAD
 # . (device 66309, inode 21508469): 18 files, no impossibilities.
 
 # 18 files, no impossibilities in 1 directories.
-=======
-# . (device 16777220, inode 8812415718): 16 files, no impossibilities.
-
-# 16 files, no impossibilities in 1 directories.
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 # Implicit Rules
 
@@ -277,74 +259,36 @@ all:
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has not been updated.
-<<<<<<< HEAD
-=======
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-
-# Not a target:
-.SUFFIXES:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-<<<<<<< HEAD
-#  Last modified 2022-06-07 00:14:47.320142922
+#  Last modified 2022-06-07 10:54:44.014767479
 #  File has been updated.
 #  Successfully updated.
-=======
-#  Last modified 2022-06-06 13:49:49
-#  File has been updated.
-#  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 
 test:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 20):
-=======
-#  commands to execute (from `Makefile', line 20):
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 	go test -v -cover ./...
 
 push_docker:
 #  Implicit rule search has not been done.
-<<<<<<< HEAD
- 
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 7):
 	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.5
-=======
-#  Modification time never checked.
-#  File has not been updated.
-#  commands to execute (from `Makefile', line 7):
-	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.4
-	
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
+ 
 
 build_docker:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 3):
 	docker build -t cornerstone-issuer:0.0.5 .
-	docker tag cornerstone-issuer:0.0.4 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.5
-=======
-#  commands to execute (from `Makefile', line 3):
-	docker build -t cornerstone-issuer:0.0.4 .
-	docker tag cornerstone-issuer:0.0.4 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.4
-	
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
+	docker tag cornerstone-issuer:0.0.5 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.0.5
 
 # Not a target:
 .DEFAULT:
@@ -356,46 +300,25 @@ run:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 17):
-=======
-#  commands to execute (from `Makefile', line 17):
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 	go run cmd/main.go
 
 fmt:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
-<<<<<<< HEAD
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 11):
-=======
- 
-make: *** No rule to make target `all'.  Stop.
-
-#  File has not been updated.
-#  commands to execute (from `Makefile', line 11):
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 	go fmt ./...
 
 lint:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-<<<<<<< HEAD
 #  recipe to execute (from 'Makefile', line 14):
 	golint ./...
 
 # files hash-table stats:
 # Load=10/1024=1%, Rehash=0, Collisions=0/20=0%
-=======
-#  commands to execute (from `Makefile', line 14):
-	golint ./...
-	
-
-# files hash-table stats:
-# Load=10/1024=1%, Rehash=0, Collisions=0/22=0%
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
 # VPATH Search Paths
 
 # No 'vpath' search paths.
@@ -405,13 +328,9 @@ lint:
 # strcache buffers: 1 (0) / strings = 29 / storage = 273 B / avg = 9 B
 # current buf: size = 8162 B / used = 273 B / count = 29 / avg = 9 B
 
-<<<<<<< HEAD
 # strcache performance: lookups = 39 / hit rate = 25%
 # hash-table stats:
 # Load=29/8192=0%, Rehash=0, Collisions=1/39=3%
-# Finished Make data base on Tue Jun  7 00:26:41 2022
-=======
-# Finished Make data base on Tue Jun  7 10:28:22 2022
->>>>>>> 497349739fc0b3c8474cc74951b34ac047cdef57
+# Finished Make data base on Thu Jun  9 14:48:29 2022
 
  

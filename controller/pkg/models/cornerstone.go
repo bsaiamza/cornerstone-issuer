@@ -1,6 +1,6 @@
 package models
 
-type PrepareCornerstoneData struct {
+type CredentialRequestData struct {
 	Email          string `json:"email"`
 	IDNumber       string `json:"id_number"`
 	Surname        string `json:"surname"`
@@ -10,7 +10,7 @@ type PrepareCornerstoneData struct {
 	CountryOfBirth string `json:"country_of_birth"`
 }
 
-type CornerstoneData struct {
+type CornerstoneCredentialData struct {
 	IDNumber       string `json:"id_number"`
 	Surname        string `json:"surname"`
 	Forenames      string `json:"forenames"`
@@ -31,4 +31,14 @@ type DhaData struct {
 	BiometricsFingerprintMatch int    `json:"Biometrics-fingerprint_match"`
 	Nationality                string `json:"Nationality"`
 	CountryOfBirth             string `json:"Country_of_Birth"`
+}
+
+type DhaAPIError []DhaAPIErrorElement
+
+type DhaAPIErrorElement struct {
+	OriginatingDate string `json:"originatingDate"`
+	ResponseCode    int64  `json:"responseCode"`
+	ResponseDesc    string `json:"responseDesc"`
+	ZaID            string `json:"ZA ID"`
+	EndToEndID      string `json:"endToEndId"`
 }

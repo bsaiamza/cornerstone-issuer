@@ -37,8 +37,10 @@ func NewRouter(config *config.Config, acapyClient *acapy.Client, cache *util.Big
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/connections", listConnections(config, acapyClient))
 	// credential
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/topic/connections/", issueCredential(config, acapyClient, cache))
-	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential", prepareCornerstoneData(config, acapyClient, cache))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credential", displayCredentialRequest(config, acapyClient, cache))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/email-credential", emailCredentialRequest(config, acapyClient, cache))
 	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/credentials", listCredentials(config, acapyClient))
+	r.HandleFunc(apiBaseURL+"/cornerstone/issuer/topic/issue_credential/", credentialPing(config, acapyClient, cache))
 
 	r.Handle("/", http.FileServer(getFileSystem()))
 

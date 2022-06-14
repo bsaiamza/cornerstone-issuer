@@ -1,61 +1,58 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
 import MaterialTable from '@material-table/core'
-import {
-  // Badge as CredentialIcon,
-  Refresh as RefreshIcon,
-} from '@mui/icons-material'
+import { Refresh } from '@mui/icons-material'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 // components
+// import CardComponent from '../../components/Card'
+// import GridComponent from '../../components/Grid'
+// import ListItemComponent from '../../components/ListItem'
+// import ListItemTextComponent from '../../components/ListItemText'
 import TypographyComponent from '../../components/Typography'
-// import CredentialModal from './modal'
 
-const ConnectionsPage = () => {
+const CredentialRecordsPage = () => {
   const [data, setData] = useState([])
-  // const [open, setOpen] = useState(false)
-  // const [connectionId, setConnectionId] = useState('')
-
-  // const handleOpen = () => setOpen(true)
-  // const handleClose = () => setOpen(false)
 
   useEffect(() => {
-    let apiURL = '/api/v1/cornerstone/issuer/connections'
+    let apiURL = '/api/v1/cornerstone/issuer/credentials'
 
     if (process.env.API_BASE_URL) {
-      apiURL = process.env.API_BASE_URL + '/cornerstone/issuer/connections'
+      apiURL = process.env.API_BASE_URL + '/cornerstone/issuer/credentials'
     }
 
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       axios
-        .get(process.env.REACT_APP_API_URL + 'connections?state=active')
+        .get(process.env.REACT_APP_API_URL + 'credentials')
         .then(response => {
+          console.log(response.data)
           setData(response.data)
         })
         .catch(error => console.log(error))
     } else {
       axios
-        .get(apiURL + '?state=active')
+        .get(apiURL)
         .then(response => {
+          console.log(response.data)
           setData(response.data)
         })
         .catch(error => console.log(error))
     }
   }, [])
 
-  const refreshConnections = async () => {
-    let apiURL = '/api/v1/cornerstone/issuer/connections'
+  const refreshCredentialRecords = async () => {
+    let apiURL = '/api/v1/cornerstone/issuer/credentials'
 
     if (process.env.API_BASE_URL) {
-      apiURL = process.env.API_BASE_URL + '/cornerstone/issuer/connections'
+      apiURL = process.env.API_BASE_URL + '/cornerstone/issuer/credentials'
     }
 
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       await toast.promise(
         axios
-          .get(process.env.REACT_APP_API_URL + 'connections?state=active')
+          .get(process.env.REACT_APP_API_URL + 'credentials')
           .then(response => {
             setData(response.data)
-            toast.success('Refreshed connections!')
+            toast.success('Refreshed credential records!')
           })
           .catch(error => console.log(error)),
         {
@@ -65,10 +62,10 @@ const ConnectionsPage = () => {
     } else {
       await toast.promise(
         axios
-          .get(apiURL + '?state=active')
+          .get(apiURL)
           .then(response => {
             setData(response.data)
-            toast.success('Refreshed connections!')
+            toast.success('Refreshed credential records!')
           })
           .catch(error => console.log(error)),
         {
@@ -77,14 +74,6 @@ const ConnectionsPage = () => {
       )
     }
   }
-
-  // const renderModal = (
-  //   <CredentialModal
-  //     connectionId={connectionId}
-  //     handleClose={handleClose}
-  //     open={open}
-  //   />
-  // )
 
   return (
     <>
@@ -96,21 +85,15 @@ const ConnectionsPage = () => {
               variant="h5"
               sx={{ textDecoration: 'underline' }}
             >
-              Connections
+              Credential Records
             </TypographyComponent>
           }
           data={data}
           columns={[
             {
               title: (
-                <TypographyComponent variant="h6">Name</TypographyComponent>
-              ),
-              field: 'their_label',
-            },
-            {
-              title: (
                 <TypographyComponent variant="h6">
-                  Connected On
+                  Created On
                 </TypographyComponent>
               ),
               field: 'created_at',
@@ -127,18 +110,35 @@ const ConnectionsPage = () => {
             {
               title: (
                 <TypographyComponent variant="h6">
-                  Connection State
+                  Credential Exchange ID
+                </TypographyComponent>
+              ),
+              field: 'credential_exchange_id',
+            },
+            {
+              title: (
+                <TypographyComponent variant="h6">
+                  Issuance State
                 </TypographyComponent>
               ),
               field: 'state',
             },
+            {
+              title: (
+                <TypographyComponent variant="h6">
+                  Updated On
+                </TypographyComponent>
+              ),
+              field: 'updated_at',
+              type: 'datetime',
+            },
           ]}
           actions={[
             {
-              icon: () => <RefreshIcon />,
-              tooltip: 'Refresh connections',
+              icon: () => <Refresh />,
+              tooltip: 'Refresh records',
               isFreeAction: true,
-              onClick: () => refreshConnections(),
+              onClick: () => refreshCredentialRecords(),
             },
             // rowData => ({
             //   icon: () => <CredentialIcon />,
@@ -160,4 +160,4 @@ const ConnectionsPage = () => {
   )
 }
 
-export default ConnectionsPage
+export default CredentialRecordsPage
