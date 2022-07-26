@@ -91,7 +91,7 @@ func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte
 	//New email simple html with inline and CC
 	email := mailV2.NewMSG()
 
-	email.SetFrom("no-reply@bankservafrica.com").
+	email.SetFrom("aws_iamzanet@bankservafrica.com").
 		AddTo(recipientEmail).
 		// AddCc("otherto@example.com").
 		SetSubject("Get your Cornerstone Credential")
@@ -168,7 +168,7 @@ func SendNotificationEmail(name, recipientEmail string) error {
 	//New email simple html with inline and CC
 	email := mailV2.NewMSG()
 
-	email.SetFrom("no-reply@bankservafrica.com").
+	email.SetFrom("aws_iamzanet@bankservafrica.com").
 		AddTo(recipientEmail).
 		// AddCc("otherto@example.com").
 		SetSubject("Your Cornerstone Credential is ready")
