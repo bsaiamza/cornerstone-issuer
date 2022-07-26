@@ -1,4 +1,4 @@
-# DI - Address Issuer Repo
+# DI - Cornerstone Issuer Repo
 
 Digital Identity is the identity use case of verifiable credentials as a implementation of the technology of HyperLedger Indy, HyperLedger URSA and Hyperledger Aries.
 
