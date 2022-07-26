@@ -1,9 +1,23 @@
-# DI - Cornerstone Issuer Repo
+# DI - Address Issuer Repo
 
-Digital Identity is the identity use case of verifiable credentials as a implementation of the technology of HyperLedger Indy, HyperLedger URSA and Hyperledger Aries
+Digital Identity is the identity use case of verifiable credentials as a implementation of the technology of HyperLedger Indy, HyperLedger URSA and Hyperledger Aries.
 
-Other use case could be a digital credential representing a drivers license,
+- This use case involves issuing a digital credential representing an "Identity document".
 
-# DI - Cornerstone Issuer REACT Frontend client app
+## Directory structure
 
-...
+```
+.
+├── api             // handlers, router (endpoints) and ui (production build)
+├── cmd             // server entry point
+├── deploy          // k8s aws deployment files
+├── pkg
+│   ├── client      // ACA-py and DHA client functions
+│   ├── config      // config loading env variables
+│   ├── log         // logger
+│   ├── models      // all dto's
+│   ├── server      // server configuration and middleware
+│   └── utils       // helper functions
+├── web             // React.js ui
+└─
+```
