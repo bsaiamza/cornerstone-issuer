@@ -21,10 +21,12 @@ type Client struct {
 }
 
 func NewClient(acapyURL string) *Client {
-	t := http.DefaultTransport.(*http.Transport).Clone()
-	t.MaxIdleConns = 100
-	t.MaxConnsPerHost = 100
-	t.MaxIdleConnsPerHost = 100
+	t := &http.Transport{
+		MaxIdleConns: 100,
+		MaxConnsPerHost: 100,
+		MaxIdleConnsPerHost: 100,
+		// TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 
 	client := http.Client{
 		Timeout:   10 * time.Second,
@@ -114,34 +116,4 @@ func inputReader(body interface{}) io.Reader {
 	}
 
 	return input
-}
-
-func (c *Client) DhaRequest(url string) (models.DHASuccessResponse, error) {
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return models.DHASuccessResponse{}, err
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-
-	response, err := c.HTTPClient.Do(request)
-	if err != nil || response.StatusCode >= 300 {
-		if response != nil {
-			log.Error.Printf("DHA Request failed: %s", response.Status)
-			if body, err := ioutil.ReadAll(response.Body); err != nil {
-				log.Error.Printf("DHA Response body: %s", body)
-			}
-			return models.DHASuccessResponse{}, errors.New("DHA Request failed " + err.Error())
-		}
-		return models.DHASuccessResponse{}, err
-	}
-	defer response.Body.Close()
-
-	var dhaData models.DHASuccessResponse
-	err = json.NewDecoder(response.Body).Decode(&dhaData)
-	if err != nil {
-		return models.DHASuccessResponse{}, err
-	}
-
-	return dhaData, nil
 }

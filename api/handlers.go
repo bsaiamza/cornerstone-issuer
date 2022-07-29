@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -207,7 +208,21 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 		// Step 3: Call DHA API and compare user information
 		log.Info.Printf("Calling DHA API to get user data with the following ID number as a parameter: %s", userID)
 
-		dhaData, err := client.DhaRequest("http://" + config.GetDHAAPI() + userID)
+		resp, err := http.Get(config.GetDHAAPI() + userID)
+		if err != nil {
+			log.Error.Printf("Failed on DHA API call: %s", err)
+		}
+
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error.Printf("Failed to read DHA API response body: %s", err)
+		}
+
+		fmt.Println(string(body))
+
+		dhaData, err := client.DHASimulatorRequest(config.GetDHASimulatorAPI() + userID)
 		if err != nil {
 			log.Error.Printf("Failed on DHA API call: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -219,14 +234,14 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 			return
 		}
 
-		log.Info.Printf("DHA API response: \n%v", dhaData)
+		log.Info.Printf("DHA API response: %v", dhaData)
 
 		dhaID := dhaData.IDNumber
-		dhaNames := strings.ToLower(dhaData.Forenames)
-		userNames := strings.ToLower(userInfo.Forenames)
+		dhaNames := strings.ToLower(dhaData.Names)
+		userNames := strings.ToLower(userInfo.FirstNames)
 		dhaSurname := strings.ToLower(dhaData.Surname)
 		userSurname := strings.ToLower(userInfo.Surname)
-		dhaGender := strings.ToLower(dhaData.Gender)
+		dhaGender := strings.ToLower(dhaData.Sex)
 		userGender := strings.ToLower(string(userInfo.Gender[0]))
 		dhaDOB := dhaData.DateOfBirth
 		userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
@@ -377,7 +392,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 		// Step 4: Call DHA API and compare user information
 		log.Info.Printf("Calling DHA API to get user data with the following ID number as a parameter: %s", userID)
 
-		dhaData, err := client.DhaRequest("http://" + config.GetDHAAPI() + userID)
+		dhaData, err := client.DHASimulatorRequest(config.GetDHASimulatorAPI() + userID)
 		if err != nil {
 			log.Error.Printf("Failed on DHA API call: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -392,11 +407,11 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 		log.Info.Printf("DHA API response: \n%v", dhaData)
 
 		dhaID := dhaData.IDNumber
-		dhaNames := strings.ToLower(dhaData.Forenames)
-		userNames := strings.ToLower(userInfo.Forenames)
+		dhaNames := strings.ToLower(dhaData.Names)
+		userNames := strings.ToLower(userInfo.FirstNames)
 		dhaSurname := strings.ToLower(dhaData.Surname)
 		userSurname := strings.ToLower(userInfo.Surname)
-		dhaGender := strings.ToLower(dhaData.Gender)
+		dhaGender := strings.ToLower(dhaData.Sex)
 		userGender := strings.ToLower(string(userInfo.Gender[0]))
 		dhaDOB := dhaData.DateOfBirth
 		userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
@@ -590,8 +605,8 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 								Value: userInfo.IDNumber,
 							},
 							{
-								Name:  "Forenames",
-								Value: userInfo.Forenames,
+								Name:  "First Names",
+								Value: userInfo.FirstNames,
 							},
 							{
 								Name:  "Surname",

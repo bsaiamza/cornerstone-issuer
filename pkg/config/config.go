@@ -20,7 +20,15 @@ func (c *Config) GetAcapyURL() string {
 }
 
 func (c *Config) GetDHAAPI() string {
-	return getEnvVarByName("DHAAPI")
+	return getEnvVarByName("DHA_API")
+}
+
+func (c *Config) GetDHASimulatorAPI() string {
+	return getEnvVarByName("DHA_SIMULATOR_API")
+}
+
+func (c *Config) GetDHAQueryAPI() string {
+	return getEnvVarByName("DHA_QUERY_API")
 }
 
 func (c *Config) GetSchemaID() string {
@@ -45,4 +53,8 @@ func (c *Config) GetPublicDID() string {
 
 func (c *Config) GetServerAddress() string {
 	return getEnvVarByName("SERVER_ADDRESS")
+}
+
+func (c *Config) GetDHAQueryServerAddress() string {
+	return getEnvVarByName("DHA_QUERY_SERVER_ADDRESS")
 }

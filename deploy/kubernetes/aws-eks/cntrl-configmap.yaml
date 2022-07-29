@@ -7,14 +7,18 @@ metadata:
 data:
   # acapy variables
   ACAPY_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:8001" # socket - ?
+  SCHEMA_ID: "BER7WwiAMK9igkiRjPYpEp:2:Cornerstone_Credential:2.1"
+  SCHEMA_NAME: "Cornerstone_Credential"
+  SCHEMA_VERSION: "2.1"
+  CRED_DEF_ID: "BER7WwiAMK9igkiRjPYpEp:3:CL:52285:IAMZA Cornerstone Credential"
+  PUBLIC_DID: "BER7WwiAMK9igkiRjPYpEp"
   # ACAPY_ADMIN_API_KEY: secret
   # client variables
   # CLIENT_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:3000" # socket
   # server variables
   SERVER_ADDRESS: 0.0.0.0:8180
-  SCHEMA_ID: "BER7WwiAMK9igkiRjPYpEp:2:Cornerstone_Credential:2.0"
-  SCHEMA_NAME: "Cornerstone_Credential"
-  SCHEMA_VERSION: "2.0"
-  CRED_DEF_ID: "BER7WwiAMK9igkiRjPYpEp:3:CL:51804:IAMZA Cornerstone Credential"
-  PUBLIC_DID: "BER7WwiAMK9igkiRjPYpEp"
-  DHAAPI: "dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="
+  DHA_QUERY_SERVER_ADDRESS: 0.0.0.0:8181
+  # DHA variables
+  DHA_API: "https://npr-prod.dha.gov.za:8093/NATCGI/BVRSTEST/NWWAPS/SYSWEB/WEB046N?IDNO="
+  DHA_SIMULATOR_API: "http://dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="
+  # DHA_QUERY_API: "https://issuer.iamza-sandbox.com/api/v1/dha"

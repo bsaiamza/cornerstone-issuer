@@ -20,8 +20,10 @@ venv/
 # Cornerstone Issuer
 # Files
 *.log
+web/package-lock.json
 
 # Folders
 .vscode/
 bin/
 web/node_modules/
+web/build/

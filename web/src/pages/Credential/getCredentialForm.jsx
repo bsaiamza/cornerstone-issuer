@@ -63,7 +63,7 @@ const GetCredentialForm = () => {
         <FormikComponent
           initialValues={{
             id_number: '',
-            forenames: '',
+            first_names: '',
             surname: '',
             gender: '',
             date_of_birth: '',
@@ -91,11 +91,11 @@ const GetCredentialForm = () => {
                 />
 
                 <TextFieldComponent
-                  id="forenames"
-                  name="forenames"
-                  value={values.forenames}
+                  id="first_names"
+                  name="first_names"
+                  value={values.first_names}
                   onChange={handleChange}
-                  label="Forenames"
+                  label="First Names"
                   sx={{ m: '1rem' }}
                   required
                 />
