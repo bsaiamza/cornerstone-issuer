@@ -22,8 +22,8 @@ type Client struct {
 
 func NewClient(acapyURL string) *Client {
 	t := &http.Transport{
-		MaxIdleConns: 100,
-		MaxConnsPerHost: 100,
+		MaxIdleConns:        100,
+		MaxConnsPerHost:     100,
 		MaxIdleConnsPerHost: 100,
 		// TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}

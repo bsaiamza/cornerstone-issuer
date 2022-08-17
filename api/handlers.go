@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -211,6 +212,13 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 		resp, err := http.Get(config.GetDHAAPI() + userID)
 		if err != nil {
 			log.Error.Printf("Failed on DHA API call: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			res := server.Response{
+				"success": false,
+				"msg":     "Failed on DHA API call: " + err.Error(),
+			}
+			json.NewEncoder(w).Encode(res)
+			return
 		}
 
 		defer resp.Body.Close()
@@ -222,55 +230,161 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 
 		fmt.Println(string(body))
 
-		dhaData, err := client.DHASimulatorRequest(config.GetDHASimulatorAPI() + userID)
+		var dhaData models.DHAResponse
+		err = xml.NewDecoder(resp.Body).Decode(&dhaData)
 		if err != nil {
-			log.Error.Printf("Failed on DHA API call: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Response{
-				"success": false,
-				"msg":     "Failed on DHA API call: " + err.Error(),
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodGet, config.GetDHASimulatorAPI()+userID, nil)
+			if err != nil {
+				log.Error.Printf("Failed to create request for DHA API call: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed to create request for DHA API call: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
 			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
 
-		log.Info.Printf("DHA API response: %v", dhaData)
+			req.Header.Set("Content-Type", "application/json")
 
-		dhaID := dhaData.IDNumber
-		dhaNames := strings.ToLower(dhaData.Names)
-		userNames := strings.ToLower(userInfo.FirstNames)
-		dhaSurname := strings.ToLower(dhaData.Surname)
-		userSurname := strings.ToLower(userInfo.Surname)
-		dhaGender := strings.ToLower(dhaData.Sex)
-		userGender := strings.ToLower(string(userInfo.Gender[0]))
-		dhaDOB := dhaData.DateOfBirth
-		userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
-		dhaCOB := dhaData.CountryOfBirth
-		userCOB := ""
-		if userInfo.CountryOfBirth == "South Africa" {
-			userCOB = "RSA"
-		}
-
-		fmt.Println("\n\n")
-		fmt.Println("DHA Data vs User Data")
-		fmt.Println("IDs: " + dhaID + " - " + userID)
-		fmt.Println("Names: " + dhaNames + " - " + userNames)
-		fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
-		fmt.Println("Gender: " + dhaGender + " - " + userGender)
-		fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
-		fmt.Println("Country: " + dhaCOB + " - " + userCOB)
-		fmt.Println("\n\n")
-
-		if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-			dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
-			log.Error.Println("Failed: user data does not match DHA data!")
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Response{
-				"success": false,
-				"msg":     "Failed: data does not match DHA data!",
+			simResp, err := client.Do(req)
+			if err != nil {
+				log.Error.Printf("Failed on DHA simulator API call: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed on DHA simulator API call: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
 			}
-			json.NewEncoder(w).Encode(res)
-			return
+
+			defer simResp.Body.Close()
+
+			// err checking because theres no error struct
+			simBody, err := ioutil.ReadAll(simResp.Body)
+			if err != nil {
+				log.Error.Printf("Failed to read DHA simulator API response body: %s", err)
+			}
+
+			fmt.Println(string(simBody))
+
+			if simResp.StatusCode >= 400 {
+				log.Error.Println("Failed to find user in DHA simulator records!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed to find user in DHA simulator records!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			var dhaSimulatorData models.DHASimulatorResponse
+			// err = json.NewDecoder(simResp.Body).Decode(&dhaSimulatorData) // returns EOF for reason
+			err = json.Unmarshal(simBody, &dhaSimulatorData)
+			if err != nil {
+				log.Error.Printf("Failed to decode dha simulator data: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed to decode dha simulator data: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			log.Info.Printf("DHA Simulator API response: %v", dhaSimulatorData)
+
+			dhaID := dhaSimulatorData.IDNumber
+			dhaNames := strings.ToLower(dhaSimulatorData.Names)
+			userNames := strings.ToLower(userInfo.FirstNames)
+			dhaSurname := strings.ToLower(dhaSimulatorData.Surname)
+			userSurname := strings.ToLower(userInfo.Surname)
+			dhaGender := strings.ToLower(dhaSimulatorData.Sex)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			dhaDOB := dhaSimulatorData.DateOfBirth
+			userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
+			dhaCOB := dhaSimulatorData.CountryOfBirth
+			userCOB := ""
+			if userInfo.CountryOfBirth == "South Africa" {
+				userCOB = "RSA"
+			}
+
+			fmt.Println("\n\n")
+			fmt.Println("DHA Data vs User Data")
+			fmt.Println("IDs: " + dhaID + " - " + userID)
+			fmt.Println("Names: " + dhaNames + " - " + userNames)
+			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
+			fmt.Println("Gender: " + dhaGender + " - " + userGender)
+			fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+			fmt.Println("\n\n")
+
+			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
+				dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
+				log.Error.Println("Failed: user data does not match DHA simulator data!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed: data does not match DHA simulator data!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+		} else {
+
+			log.Info.Printf("DHA API response: %v", dhaData)
+
+			// Check death status
+			if dhaData.Root.Person.DeathStatus == "DEAD" {
+				log.Error.Println("Failed: user is deceased!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed: user is deceased!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			dhaID := dhaData.Root.Person.IDNumber
+			dhaNames := strings.ToLower(dhaData.Root.Person.Names)
+			userNames := strings.ToLower(userInfo.FirstNames)
+			dhaSurname := strings.ToLower(dhaData.Root.Person.Surname)
+			userSurname := strings.ToLower(userInfo.Surname)
+			dhaGender := strings.ToLower(dhaData.Root.Person.Gender)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			// dhaDOB := dhaData.Root.Person.
+			// userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
+			dhaCOB := dhaData.Root.Person.BirthPlace
+			userCOB := ""
+			if userInfo.CountryOfBirth == "South Africa" {
+				userCOB = "RSA"
+			}
+
+			fmt.Println("\n\n")
+			fmt.Println("DHA Data vs User Data")
+			fmt.Println("IDs: " + dhaID + " - " + userID)
+			fmt.Println("Names: " + dhaNames + " - " + userNames)
+			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
+			fmt.Println("Gender: " + dhaGender + " - " + userGender)
+			// fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+			fmt.Println("\n\n")
+
+			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
+				dhaGender == userGender /*&& dhaDOB == userDOB*/ && dhaCOB == userCOB) {
+				log.Error.Println("Failed: user data does not match DHA data!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed: data does not match DHA data!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
 		}
 
 		// Step 4: Create Invitation
@@ -392,7 +506,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 		// Step 4: Call DHA API and compare user information
 		log.Info.Printf("Calling DHA API to get user data with the following ID number as a parameter: %s", userID)
 
-		dhaData, err := client.DHASimulatorRequest(config.GetDHASimulatorAPI() + userID)
+		resp, err := http.Get(config.GetDHAAPI() + userID)
 		if err != nil {
 			log.Error.Printf("Failed on DHA API call: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -404,43 +518,170 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 			return
 		}
 
-		log.Info.Printf("DHA API response: \n%v", dhaData)
+		defer resp.Body.Close()
 
-		dhaID := dhaData.IDNumber
-		dhaNames := strings.ToLower(dhaData.Names)
-		userNames := strings.ToLower(userInfo.FirstNames)
-		dhaSurname := strings.ToLower(dhaData.Surname)
-		userSurname := strings.ToLower(userInfo.Surname)
-		dhaGender := strings.ToLower(dhaData.Sex)
-		userGender := strings.ToLower(string(userInfo.Gender[0]))
-		dhaDOB := dhaData.DateOfBirth
-		userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
-		dhaCOB := dhaData.CountryOfBirth
-		userCOB := ""
-		if userInfo.CountryOfBirth == "South Africa" {
-			userCOB = "RSA"
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error.Printf("Failed to read DHA API response body: %s", err)
 		}
 
-		fmt.Println("\n\n")
-		fmt.Println("DHA Data vs User Data")
-		fmt.Println("IDs: " + dhaID + " - " + userID)
-		fmt.Println("Names: " + dhaNames + " - " + userNames)
-		fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
-		fmt.Println("Gender: " + dhaGender + " - " + userGender)
-		fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
-		fmt.Println("Country: " + dhaCOB + " - " + userCOB)
-		fmt.Println("\n\n")
+		fmt.Println(string(body))
 
-		if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-			dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
-			log.Error.Println("Failed: user data does not match DHA data!")
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Response{
-				"success": false,
-				"msg":     "Failed: data does not match DHA data!",
+		var dhaData models.DHAResponse
+		err = xml.NewDecoder(resp.Body).Decode(&dhaData)
+		if err != nil {
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodGet, config.GetDHASimulatorAPI()+userID, nil)
+			if err != nil {
+				log.Error.Printf("Failed to create request for DHA API call: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed to create request for DHA API call: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
 			}
-			json.NewEncoder(w).Encode(res)
-			return
+
+			req.Header.Set("Content-Type", "application/json")
+
+			simResp, err := client.Do(req)
+			if err != nil {
+				log.Error.Printf("Failed on DHA simulator API call: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed on DHA simulator API call: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			defer simResp.Body.Close()
+
+			// err checking because theres no error struct
+			simBody, err := ioutil.ReadAll(simResp.Body)
+			if err != nil {
+				log.Error.Printf("Failed to read DHA simulator API response body: %s", err)
+			}
+
+			fmt.Println(string(simBody))
+
+			if simResp.StatusCode >= 400 {
+				log.Error.Println("Failed to find user in DHA simulator records!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed to find user in DHA simulator records!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			var dhaSimulatorData models.DHASimulatorResponse
+			// err = json.NewDecoder(simResp.Body).Decode(&dhaSimulatorData) // returns EOF for reason
+			err = json.Unmarshal(simBody, &dhaSimulatorData)
+			if err != nil {
+				log.Error.Printf("Failed to decode dha simulator data: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed to decode dha simulator data: " + err.Error(),
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			log.Info.Printf("DHA Simulator API response: %v", dhaSimulatorData)
+
+			dhaID := dhaSimulatorData.IDNumber
+			dhaNames := strings.ToLower(dhaSimulatorData.Names)
+			userNames := strings.ToLower(userInfo.FirstNames)
+			dhaSurname := strings.ToLower(dhaSimulatorData.Surname)
+			userSurname := strings.ToLower(userInfo.Surname)
+			dhaGender := strings.ToLower(dhaSimulatorData.Sex)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			dhaDOB := dhaSimulatorData.DateOfBirth
+			userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
+			dhaCOB := dhaSimulatorData.CountryOfBirth
+			userCOB := ""
+			if userInfo.CountryOfBirth == "South Africa" {
+				userCOB = "RSA"
+			}
+
+			fmt.Println("\n\n")
+			fmt.Println("DHA Data vs User Data")
+			fmt.Println("IDs: " + dhaID + " - " + userID)
+			fmt.Println("Names: " + dhaNames + " - " + userNames)
+			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
+			fmt.Println("Gender: " + dhaGender + " - " + userGender)
+			fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+			fmt.Println("\n\n")
+
+			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
+				dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
+				log.Error.Println("Failed: user data does not match DHA simulator data!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed: data does not match DHA simulator data!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+		} else {
+
+			log.Info.Printf("DHA API response: %v", dhaData)
+
+			// Check death status
+			if dhaData.Root.Person.DeathStatus == "DEAD" {
+				log.Error.Println("Failed: user is deceased!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed: user is deceased!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+
+			dhaID := dhaData.Root.Person.IDNumber
+			dhaNames := strings.ToLower(dhaData.Root.Person.Names)
+			userNames := strings.ToLower(userInfo.FirstNames)
+			dhaSurname := strings.ToLower(dhaData.Root.Person.Surname)
+			userSurname := strings.ToLower(userInfo.Surname)
+			dhaGender := strings.ToLower(dhaData.Root.Person.Gender)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			// dhaDOB := dhaData.Root.Person.
+			// userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
+			dhaCOB := dhaData.Root.Person.BirthPlace
+			userCOB := ""
+			if userInfo.CountryOfBirth == "South Africa" {
+				userCOB = "RSA"
+			}
+
+			fmt.Println("\n\n")
+			fmt.Println("DHA Data vs User Data")
+			fmt.Println("IDs: " + dhaID + " - " + userID)
+			fmt.Println("Names: " + dhaNames + " - " + userNames)
+			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
+			fmt.Println("Gender: " + dhaGender + " - " + userGender)
+			// fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+			fmt.Println("\n\n")
+
+			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
+				dhaGender == userGender /*&& dhaDOB == userDOB*/ && dhaCOB == userCOB) {
+				log.Error.Println("Failed: user data does not match DHA data!")
+				w.WriteHeader(http.StatusInternalServerError)
+				res := server.Response{
+					"success": false,
+					"msg":     "Failed: data does not match DHA data!",
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
 		}
 
 		// Step 5: Create Invitation
