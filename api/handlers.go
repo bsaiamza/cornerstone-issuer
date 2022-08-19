@@ -733,7 +733,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 			prefix = "Ms/Mrs "
 		}
 
-		err = utils.SendCredentialByEmail(prefix+userInfo.Surname, userInfo.Email, invitation.Invitation.RecipientKeys[0], qrCodePng)
+		err = utils.SendCredentialByEmail(prefix+userInfo.Surname, userInfo.Email, invitation.Invitation.RecipientKeys[0], qrCodePng, config)
 		if err != nil {
 			log.Warning.Print("Failed to send credential by email: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -916,7 +916,7 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 					prefix = "Ms/Mrs "
 				}
 
-				err = utils.SendNotificationEmail(prefix+userInfo.Surname, userInfo.Email)
+				err = utils.SendNotificationEmail(prefix+userInfo.Surname, userInfo.Email, config)
 				if err != nil {
 					log.Error.Printf("Failed to send credential notification email: %s", err)
 					w.WriteHeader(http.StatusInternalServerError)

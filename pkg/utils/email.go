@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"cornerstone_issuer/pkg/config"
 	"cornerstone_issuer/pkg/log"
 
 	mailV2 "github.com/xhit/go-simple-mail/v2"
@@ -23,7 +24,7 @@ func ValidEmail(email string) error {
 	return nil
 }
 
-func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte) error {
+func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte, config *config.Config) error {
 	img, _, err := image.Decode(bytes.NewReader(qrCode))
 	if err != nil {
 		log.ServerError.Printf("Failed to decode qr code: %s", err.Error())
@@ -68,8 +69,8 @@ func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte
 	//SMTP Server
 	server.Host = "smtp.office365.com"
 	server.Port = 587
-	server.Username = "aws_iamzanet@bankservafrica.com"
-	server.Password = "K5fEoXa8"
+	server.Username = config.GetEmailUsername()
+	server.Password = config.GetEmailPassword()
 	server.Encryption = mailV2.EncryptionSTARTTLS
 	server.Authentication = mailV2.AuthLogin
 
@@ -91,7 +92,7 @@ func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte
 	//New email simple html with inline and CC
 	email := mailV2.NewMSG()
 
-	email.SetFrom("aws_iamzanet@bankservafrica.com").
+	email.SetFrom(config.GetEmailUsername()).
 		AddTo(recipientEmail).
 		// AddCc("otherto@example.com").
 		SetSubject("Get your Cornerstone Credential")
@@ -116,7 +117,7 @@ func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte
 	return nil
 }
 
-func SendNotificationEmail(name, recipientEmail string) error {
+func SendNotificationEmail(name, recipientEmail string, config *config.Config) error {
 	htmlBody := `
 		<html>
 			<head>
@@ -145,8 +146,8 @@ func SendNotificationEmail(name, recipientEmail string) error {
 	//SMTP Server
 	server.Host = "smtp.office365.com"
 	server.Port = 587
-	server.Username = "aws_iamzanet@bankservafrica.com"
-	server.Password = "K5fEoXa8"
+	server.Username = config.GetEmailUsername()
+	server.Password = config.GetEmailPassword()
 	server.Encryption = mailV2.EncryptionSTARTTLS
 	server.Authentication = mailV2.AuthLogin
 
@@ -168,7 +169,7 @@ func SendNotificationEmail(name, recipientEmail string) error {
 	//New email simple html with inline and CC
 	email := mailV2.NewMSG()
 
-	email.SetFrom("aws_iamzanet@bankservafrica.com").
+	email.SetFrom(config.GetEmailUsername()).
 		AddTo(recipientEmail).
 		// AddCc("otherto@example.com").
 		SetSubject("Your Cornerstone Credential is ready")

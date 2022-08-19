@@ -55,6 +55,10 @@ func (c *Config) GetServerAddress() string {
 	return getEnvVarByName("SERVER_ADDRESS")
 }
 
-func (c *Config) GetDHAQueryServerAddress() string {
-	return getEnvVarByName("DHA_QUERY_SERVER_ADDRESS")
+func (c *Config) GetEmailUsername() string {
+	return getEnvVarByName("EMAIL_USERNAME")
+}
+
+func (c *Config) GetEmailPassword() string {
+	return getEnvVarByName("EMAIL_PASSWORD")
 }
