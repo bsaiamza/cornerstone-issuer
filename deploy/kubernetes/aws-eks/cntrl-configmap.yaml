@@ -22,4 +22,4 @@ data:
   # DHA variables
   DHA_API: "https://npr-prod.dha.gov.za:8093/NATCGI/BVRSTEST/NWWAPS/SYSWEB/WEB046N?IDNO="
   DHA_SIMULATOR_API: "http://dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="
-  # DHA_QUERY_API: "https://issuer.iamza-sandbox.com/api/v1/dha"
+  DHA_API_SWITCH: "2"

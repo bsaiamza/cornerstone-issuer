@@ -19,6 +19,10 @@ func (c *Config) GetAcapyURL() string {
 	return getEnvVarByName("ACAPY_URL")
 }
 
+func (c *Config) GetDHAAPISwitch() string {
+	return getEnvVarByName("DHA_API_SWITCH")
+}
+
 func (c *Config) GetDHAAPI() string {
 	return getEnvVarByName("DHA_API")
 }
