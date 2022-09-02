@@ -31,10 +31,6 @@ func (c *Config) GetDHASimulatorAPI() string {
 	return getEnvVarByName("DHA_SIMULATOR_API")
 }
 
-func (c *Config) GetDHAQueryAPI() string {
-	return getEnvVarByName("DHA_QUERY_API")
-}
-
 func (c *Config) GetSchemaID() string {
 	return getEnvVarByName("SCHEMA_ID")
 }
@@ -65,4 +61,12 @@ func (c *Config) GetEmailUsername() string {
 
 func (c *Config) GetEmailPassword() string {
 	return getEnvVarByName("EMAIL_PASSWORD")
+}
+
+func (c *Config) GetTxnCounterAPI() string {
+	return getEnvVarByName("TXN_COUNTER_API")
+}
+
+func (c *Config) GetTxnCounterSwitch() string {
+	return getEnvVarByName("TXN_COUNTER_SWITCH")
 }
