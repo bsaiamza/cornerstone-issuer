@@ -38,3 +38,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: cornerstone-issuer-configmap
+          env:
+            - name: EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cornerstoneissuersecret
+                  key: emailpw

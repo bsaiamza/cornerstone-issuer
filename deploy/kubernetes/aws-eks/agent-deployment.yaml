@@ -35,6 +35,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: cornerstone-issuer-agent-configmap
+          env:
+            - name: ACAPY_WALLET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cornerstoneissuersecret
+                  key: acapywalletkey           
+            - name: ACAPY_WALLET_STORAGE_CREDS
+              valueFrom:
+                secretKeyRef:
+                  name: cornerstoneissuersecret
+                  key: acapywalletstoragecred            
           command: [
               "/bin/bash",
               "-c",
