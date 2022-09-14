@@ -18,7 +18,7 @@ data:
   # server variables
   SERVER_ADDRESS: 0.0.0.0:8180
   EMAIL_USERNAME: aws_iamzanet@bankservafrica.com
-#  EMAIL_PASSWORD: K5fEoXa88
+#  EMAIL_PASSWORD: 
   # DHA variables
   DHA_API: "https://npr-prod.dha.gov.za:8093/NATCGI/BVRSTEST/NWWAPS/SYSWEB/WEB046N?IDNO="
   DHA_SIMULATOR_API: "http://dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="
