@@ -32,3 +32,4 @@ data:
   ACAPY_INVITE_LABEL: "IAMZA Cornerstone Credential"
   ACAPY_IMAGE_URL: "https://issuer.iamza-sandbox.com/iamza_logo.png"
   ACAPY_WEBHOOK_URL: "https://issuer.iamza-sandbox.com/api/v1/cornerstone-issuer"
+  ACAPY_EMIT_NEW_DIDCOMM_PREFIX: "true"

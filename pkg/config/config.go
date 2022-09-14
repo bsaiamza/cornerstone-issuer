@@ -19,16 +19,16 @@ func (c *Config) GetAcapyURL() string {
 	return getEnvVarByName("ACAPY_URL")
 }
 
+func (c *Config) GetDHAAPISwitch() string {
+	return getEnvVarByName("DHA_API_SWITCH")
+}
+
 func (c *Config) GetDHAAPI() string {
 	return getEnvVarByName("DHA_API")
 }
 
 func (c *Config) GetDHASimulatorAPI() string {
 	return getEnvVarByName("DHA_SIMULATOR_API")
-}
-
-func (c *Config) GetDHAQueryAPI() string {
-	return getEnvVarByName("DHA_QUERY_API")
 }
 
 func (c *Config) GetSchemaID() string {
@@ -61,4 +61,12 @@ func (c *Config) GetEmailUsername() string {
 
 func (c *Config) GetEmailPassword() string {
 	return getEnvVarByName("EMAIL_PASSWORD")
+}
+
+func (c *Config) GetTxnCounterAPI() string {
+	return getEnvVarByName("TXN_COUNTER_API")
+}
+
+func (c *Config) GetTxnCounterSwitch() string {
+	return getEnvVarByName("TXN_COUNTER_SWITCH")
 }
