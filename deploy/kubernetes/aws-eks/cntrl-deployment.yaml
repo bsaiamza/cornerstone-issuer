@@ -44,3 +44,18 @@ spec:
                 secretKeyRef:
                   name: cornerstoneissuersecret
                   key: emailpw
+            - name: EMAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: cornerstoneissuersecret
+                  key: emailusername
+            - name: EMAIL_SMTP_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: cornerstoneissuersecret
+                  key: emailsmtpserver
+            - name: EMAIL_SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: cornerstoneissuersecret
+                  key: emailsmtpport
