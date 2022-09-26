@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"net/mail"
 	"os"
+	"strconv"
 	"time"
 
 	"cornerstone_issuer/pkg/config"
@@ -67,8 +68,12 @@ func SendCredentialByEmail(name, recipientEmail, qrImgName string, qrCode []byte
 	server := mailV2.NewSMTPClient()
 
 	//SMTP Server
-	server.Host = "smtp.office365.com"
-	server.Port = 587
+	server.Host = config.GetSmtpServer()
+	smtpPort, err := strconv.Atoi(config.GetSmtpPort())
+	if err != nil {
+		log.ServerError.Printf("Failed to convert SMTP port: %s", err.Error())
+	}
+	server.Port = smtpPort
 	server.Username = config.GetEmailUsername()
 	server.Password = config.GetEmailPassword()
 	server.Encryption = mailV2.EncryptionSTARTTLS
@@ -144,8 +149,12 @@ func SendNotificationEmail(name, recipientEmail string, config *config.Config) e
 	server := mailV2.NewSMTPClient()
 
 	//SMTP Server
-	server.Host = "smtp.office365.com"
-	server.Port = 587
+	server.Host = config.GetSmtpServer()
+	smtpPort, err := strconv.Atoi(config.GetSmtpPort())
+	if err != nil {
+		log.ServerError.Printf("Failed to convert SMTP port: %s", err.Error())
+	}
+	server.Port = smtpPort
 	server.Username = config.GetEmailUsername()
 	server.Password = config.GetEmailPassword()
 	server.Encryption = mailV2.EncryptionSTARTTLS
