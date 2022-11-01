@@ -8,146 +8,27 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
-	"cornerstone_issuer/pkg/client"
-	"cornerstone_issuer/pkg/config"
-	"cornerstone_issuer/pkg/log"
-	"cornerstone_issuer/pkg/models"
-	"cornerstone_issuer/pkg/server"
-	"cornerstone_issuer/pkg/utils"
+	"cornerstone-issuer/pkg/acapy"
+	"cornerstone-issuer/pkg/config"
+	"cornerstone-issuer/pkg/log"
+	"cornerstone-issuer/pkg/models"
+	"cornerstone-issuer/pkg/server"
+	"cornerstone-issuer/pkg/utils"
 
 	"github.com/gorilla/mux"
 	"github.com/skip2/go-qrcode"
 )
 
-func health(config *config.Config) http.HandlerFunc {
+func getCredential(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.LogAPIRequest,
 	}
 
-	return server.ChainMiddleware(healthHandler(config), mdw...)
+	return server.ChainMiddleware(getCredentialHandler(config, acapy, cache), mdw...)
 }
-func healthHandler(config *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	}
-}
-
-func listConnections(config *config.Config, client *client.Client) http.HandlerFunc {
-	mdw := []server.Middleware{
-		server.LogAPIRequest,
-	}
-
-	return server.ChainMiddleware(listConnectionsHandler(config, client), mdw...)
-}
-func listConnectionsHandler(config *config.Config, client *client.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		header := w.Header()
-		header.Add("Access-Control-Allow-Origin", "*")
-		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
-		header.Add("Access-Control-Allow-Headers", "Content-Type")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		if r.Method != http.MethodGet {
-			log.Warning.Print("Incorrect request method!")
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			res := server.Response{
-				"success": false,
-				"msg":     "Warning: Incorrect request method!",
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		defer r.Body.Close()
-
-		log.Info.Println("Listing connections...")
-
-		connections, err := client.ListConnections()
-		if err != nil {
-			log.Error.Printf("Failed to list connections: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Response{
-				"success": false,
-				"msg":     "Failed to list connections: " + err.Error(),
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		log.Info.Print("Connections listed successfully!")
-
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(connections.Results)
-	}
-}
-
-func listCredentials(config *config.Config, client *client.Client) http.HandlerFunc {
-	mdw := []server.Middleware{
-		server.LogAPIRequest,
-	}
-
-	return server.ChainMiddleware(listCredentialsHandler(config, client), mdw...)
-}
-func listCredentialsHandler(config *config.Config, client *client.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		header := w.Header()
-		header.Add("Access-Control-Allow-Origin", "*")
-		header.Add("Access-Control-Allow-Methods", "GET, OPTIONS")
-		header.Add("Access-Control-Allow-Headers", "Content-Type")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		if r.Method != http.MethodGet {
-			log.Warning.Print("Incorrect request method!")
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			res := server.Response{
-				"success": false,
-				"msg":     "Warning: Incorrect request method!",
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		defer r.Body.Close()
-
-		log.Info.Println("Listing credentials records...")
-
-		records, err := client.ListCredentialRecords()
-		if err != nil {
-			log.Error.Printf("Failed to list credential records: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			res := server.Response{
-				"success": false,
-				"msg":     "Failed to list credential records: " + err.Error(),
-			}
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
-		log.Info.Print("Credential records listed successfully!")
-
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(records.Results)
-	}
-}
-
-func getCredential(config *config.Config, client *client.Client, cache *utils.BigCache) http.HandlerFunc {
-	mdw := []server.Middleware{
-		server.LogAPIRequest,
-	}
-
-	return server.ChainMiddleware(getCredentialHandler(config, client, cache), mdw...)
-}
-func getCredentialHandler(config *config.Config, client *client.Client, cache *utils.BigCache) http.HandlerFunc {
+func getCredentialHandler(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", "*")
@@ -190,7 +71,7 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 
 		// Step 2: Validate ID number
 		log.Info.Println("Validating ID number...")
-		validID := userInfo.IDNumber
+		validID := userInfo.IdentityNumber
 		validGender := userInfo.Gender
 		validCOB := userInfo.CountryOfBirth
 		userID, err := utils.IDValidator(validID, validGender, validCOB)
@@ -209,9 +90,7 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 		// Step 3: Call DHA API and compare user information
 		dhaSwitch := config.GetDHAAPISwitch()
 
-		if dhaSwitch == "0" {
-
-		} else if dhaSwitch == "1" {
+		if dhaSwitch == "1" {
 			log.Info.Printf("Calling DHA API to get user data with the following ID number as a parameter: %s", userID)
 
 			resp, err := http.Get(config.GetDHAAPI() + userID)
@@ -261,33 +140,37 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 				return
 			}
 
+			// dha
 			dhaID := dhaData.Root.Person.IDNumber
 			dhaNames := strings.ToLower(dhaData.Root.Person.Names)
-			userNames := strings.ToLower(userInfo.FirstNames)
 			dhaSurname := strings.ToLower(dhaData.Root.Person.Surname)
-			userSurname := strings.ToLower(userInfo.Surname)
 			dhaGender := strings.ToLower(dhaData.Root.Person.Gender)
-			userGender := strings.ToLower(string(userInfo.Gender[0]))
-			// dhaDOB := dhaData.Root.Person.
-			// userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
+			dhaNationality := strings.ToLower(dhaData.Root.Person.Nationality)
 			dhaCOB := dhaData.Root.Person.BirthPlace
+
+			// user
+			userNames := strings.ToLower(userInfo.Names)
+			userSurname := strings.ToLower(userInfo.Surname)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			userNationality := strings.ToLower(userInfo.Nationality)
 			userCOB := ""
 			if userInfo.CountryOfBirth == "South Africa" {
 				userCOB = "RSA"
 			}
 
+			// compare
 			fmt.Println("\n")
 			fmt.Println("DHA Data vs User Data")
 			fmt.Println("IDs: " + dhaID + " - " + userID)
 			fmt.Println("Names: " + dhaNames + " - " + userNames)
 			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
 			fmt.Println("Gender: " + dhaGender + " - " + userGender)
-			// fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+			fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
 			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
 			fmt.Println("\n")
 
 			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-				dhaGender == userGender /*&& dhaDOB == userDOB*/ && dhaCOB == userCOB) {
+				dhaGender == userGender && dhaNationality == userNationality && dhaCOB == userCOB) {
 				log.Error.Println("Failed: user data does not match DHA data!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -297,7 +180,7 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 				json.NewEncoder(w).Encode(res)
 				return
 			}
-		} else if dhaSwitch == "2" {
+		} else {
 			log.Info.Printf("Calling DHA API Simulator to get user data with the following ID number as a parameter: %s", userID)
 
 			client := &http.Client{}
@@ -350,7 +233,6 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 			}
 
 			var dhaSimulatorData models.DHASimulatorResponse
-			// err = json.NewDecoder(simResp.Body).Decode(&dhaSimulatorData) // returns EOF for reason
 			err = json.Unmarshal(body, &dhaSimulatorData)
 			if err != nil {
 				log.Error.Printf("Failed to decode dha simulator data: %s", err)
@@ -363,20 +245,25 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 				return
 			}
 
+			// dha
 			dhaID := dhaSimulatorData.IDNumber
 			dhaNames := strings.ToLower(dhaSimulatorData.Names)
-			userNames := strings.ToLower(userInfo.FirstNames)
 			dhaSurname := strings.ToLower(dhaSimulatorData.Surname)
-			userSurname := strings.ToLower(userInfo.Surname)
 			dhaGender := strings.ToLower(dhaSimulatorData.Sex)
-			userGender := strings.ToLower(string(userInfo.Gender[0]))
 			dhaDOB := dhaSimulatorData.DateOfBirth
-			userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
 			dhaCOB := dhaSimulatorData.CountryOfBirth
-			userCOB := ""
+			dhaNationality := dhaSimulatorData.Nationality
+
+			// user
+			userNames := strings.ToLower(userInfo.Names)
+			userSurname := strings.ToLower(userInfo.Surname)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			userDOB := string(userInfo.DateOfBirth[0:4]) + "/" + string(userInfo.DateOfBirth[5:7]) + "/" + string(userInfo.DateOfBirth[8:10])
+			userCOB := userInfo.CountryOfBirth
 			if userInfo.CountryOfBirth == "South Africa" {
 				userCOB = "RSA"
 			}
+			userNationality := userInfo.Nationality
 
 			fmt.Println("\n")
 			fmt.Println("DHA Data vs User Data")
@@ -386,10 +273,11 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 			fmt.Println("Gender: " + dhaGender + " - " + userGender)
 			fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
 			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+			fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
 			fmt.Println("\n")
 
 			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-				dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
+				dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB && dhaNationality == userNationality) {
 				log.Error.Println("Failed: user data does not match DHA simulator data!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -404,7 +292,7 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 		// Step 4: Create Invitation
 		invitationRequest := models.CreateInvitationRequest{}
 
-		invitation, err := client.CreateInvitation(invitationRequest)
+		invitation, err := acapy.CreateInvitation(invitationRequest)
 		if err != nil {
 			log.Error.Printf("Failed to create invitation: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -417,7 +305,7 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 		}
 
 		// Step 4: Cache user data for webhookEventsHandler
-		err = cache.UpdateStruct(invitation.Invitation.RecipientKeys[0], userInfo)
+		err = cache.User(invitation.Invitation.RecipientKeys[0], userInfo)
 		if err != nil {
 			log.Error.Printf("Failed to cache user data: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -438,14 +326,14 @@ func getCredentialHandler(config *config.Config, client *client.Client, cache *u
 	}
 }
 
-func getCredentialByEmail(config *config.Config, client *client.Client, cache *utils.BigCache) http.HandlerFunc {
+func getCredentialByEmail(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.LogAPIRequest,
 	}
 
-	return server.ChainMiddleware(getCredentialByEmailHandler(config, client, cache), mdw...)
+	return server.ChainMiddleware(getCredentialByEmailHandler(config, acapy, cache), mdw...)
 }
-func getCredentialByEmailHandler(config *config.Config, client *client.Client, cache *utils.BigCache) http.HandlerFunc {
+func getCredentialByEmailHandler(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", "*")
@@ -501,7 +389,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 
 		// Step 3: Validate ID number
 		log.Info.Println("Validating ID number...")
-		validID := userInfo.IDNumber
+		validID := userInfo.IdentityNumber
 		validGender := userInfo.Gender
 		validCOB := userInfo.CountryOfBirth
 		userID, err := utils.IDValidator(validID, validGender, validCOB)
@@ -520,9 +408,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 		// Step 4: Call DHA API and compare user information
 		dhaSwitch := config.GetDHAAPISwitch()
 
-		if dhaSwitch == "0" {
-
-		} else if dhaSwitch == "1" {
+		if dhaSwitch == "1" {
 			log.Info.Printf("Calling DHA API to get user data with the following ID number as a parameter: %s", userID)
 
 			resp, err := http.Get(config.GetDHAAPI() + userID)
@@ -572,33 +458,37 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 				return
 			}
 
+			// dha
 			dhaID := dhaData.Root.Person.IDNumber
 			dhaNames := strings.ToLower(dhaData.Root.Person.Names)
-			userNames := strings.ToLower(userInfo.FirstNames)
 			dhaSurname := strings.ToLower(dhaData.Root.Person.Surname)
-			userSurname := strings.ToLower(userInfo.Surname)
 			dhaGender := strings.ToLower(dhaData.Root.Person.Gender)
-			userGender := strings.ToLower(string(userInfo.Gender[0]))
-			// dhaDOB := dhaData.Root.Person.
-			// userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
+			dhaNationality := strings.ToLower(dhaData.Root.Person.Nationality)
 			dhaCOB := dhaData.Root.Person.BirthPlace
+
+			// user
+			userNames := strings.ToLower(userInfo.Names)
+			userSurname := strings.ToLower(userInfo.Surname)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			userNationality := strings.ToLower(userInfo.Nationality)
 			userCOB := ""
 			if userInfo.CountryOfBirth == "South Africa" {
 				userCOB = "RSA"
 			}
 
+			// compare
 			fmt.Println("\n")
 			fmt.Println("DHA Data vs User Data")
 			fmt.Println("IDs: " + dhaID + " - " + userID)
 			fmt.Println("Names: " + dhaNames + " - " + userNames)
 			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
 			fmt.Println("Gender: " + dhaGender + " - " + userGender)
-			// fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
+			fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
 			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
 			fmt.Println("\n")
 
 			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-				dhaGender == userGender /*&& dhaDOB == userDOB*/ && dhaCOB == userCOB) {
+				dhaGender == userGender && dhaNationality == userNationality && dhaCOB == userCOB) {
 				log.Error.Println("Failed: user data does not match DHA data!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -608,7 +498,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 				json.NewEncoder(w).Encode(res)
 				return
 			}
-		} else if dhaSwitch == "2" {
+		} else {
 			log.Info.Printf("Calling DHA API Simulator to get user data with the following ID number as a parameter: %s", userID)
 
 			client := &http.Client{}
@@ -661,7 +551,6 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 			}
 
 			var dhaSimulatorData models.DHASimulatorResponse
-			// err = json.NewDecoder(simResp.Body).Decode(&dhaSimulatorData) // returns EOF for reason
 			err = json.Unmarshal(body, &dhaSimulatorData)
 			if err != nil {
 				log.Error.Printf("Failed to decode dha simulator data: %s", err)
@@ -674,20 +563,25 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 				return
 			}
 
+			// dha
 			dhaID := dhaSimulatorData.IDNumber
 			dhaNames := strings.ToLower(dhaSimulatorData.Names)
-			userNames := strings.ToLower(userInfo.FirstNames)
 			dhaSurname := strings.ToLower(dhaSimulatorData.Surname)
-			userSurname := strings.ToLower(userInfo.Surname)
 			dhaGender := strings.ToLower(dhaSimulatorData.Sex)
-			userGender := strings.ToLower(string(userInfo.Gender[0]))
 			dhaDOB := dhaSimulatorData.DateOfBirth
-			userDOB := string(userInfo.DOB[0:4]) + "/" + string(userInfo.DOB[5:7]) + "/" + string(userInfo.DOB[8:10])
 			dhaCOB := dhaSimulatorData.CountryOfBirth
-			userCOB := ""
+			dhaNationality := dhaSimulatorData.Nationality
+
+			// user
+			userNames := strings.ToLower(userInfo.Names)
+			userSurname := strings.ToLower(userInfo.Surname)
+			userGender := strings.ToLower(string(userInfo.Gender[0]))
+			userDOB := string(userInfo.DateOfBirth[0:4]) + "/" + string(userInfo.DateOfBirth[5:7]) + "/" + string(userInfo.DateOfBirth[8:10])
+			userCOB := userInfo.CountryOfBirth
 			if userInfo.CountryOfBirth == "South Africa" {
 				userCOB = "RSA"
 			}
+			userNationality := userInfo.Nationality
 
 			fmt.Println("\n")
 			fmt.Println("DHA Data vs User Data")
@@ -697,10 +591,11 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 			fmt.Println("Gender: " + dhaGender + " - " + userGender)
 			fmt.Println("DOB: " + dhaDOB + " - " + userDOB)
 			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
+			fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
 			fmt.Println("\n")
 
 			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-				dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB) {
+				dhaGender == userGender && dhaDOB == userDOB && dhaCOB == userCOB && dhaNationality == userNationality) {
 				log.Error.Println("Failed: user data does not match DHA simulator data!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -715,7 +610,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 		// Step 5: Create Invitation
 		invitationRequest := models.CreateInvitationRequest{}
 
-		invitation, err := client.CreateInvitation(invitationRequest)
+		invitation, err := acapy.CreateInvitation(invitationRequest)
 		if err != nil {
 			log.Error.Printf("Failed to create invitation: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -727,8 +622,8 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 			return
 		}
 
-		// Step 6: Cache user data
-		err = cache.UpdateStruct(invitation.Invitation.RecipientKeys[0], userInfo)
+		// Step 6: Cache user data for webhookEventsHandler
+		err = cache.User(invitation.Invitation.RecipientKeys[0], userInfo)
 		if err != nil {
 			log.Error.Printf("Failed to cache user data: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -754,7 +649,7 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 		}
 
 		// Step 8: Send email
-		prefix := string(userInfo.IDNumber[6])
+		prefix := string(userInfo.IdentityNumber[6])
 		if prefix >= "5" {
 			prefix = "Mr "
 		} else {
@@ -783,14 +678,14 @@ func getCredentialByEmailHandler(config *config.Config, client *client.Client, c
 	}
 }
 
-func webhookEvents(config *config.Config, client *client.Client, cache *utils.BigCache) http.HandlerFunc {
+func webhookEvents(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	mdw := []server.Middleware{
 		server.LogAPIRequest,
 	}
 
-	return server.ChainMiddleware(webhookEventsHandler(config, client, cache), mdw...)
+	return server.ChainMiddleware(webhookEventsHandler(config, acapy, cache), mdw...)
 }
-func webhookEventsHandler(config *config.Config, client *client.Client, cache *utils.BigCache) http.HandlerFunc {
+func webhookEventsHandler(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
 		header.Add("Access-Control-Allow-Origin", "*")
@@ -832,7 +727,7 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 					Comment: "Ping",
 				}
 
-				_, err := client.PingConnection(request.ConnectionID, pingRequest)
+				_, err := acapy.PingConnection(request.ConnectionID, pingRequest)
 				if err != nil {
 					log.Error.Printf("Failed to ping holder: %s", err)
 					w.WriteHeader(http.StatusInternalServerError)
@@ -841,19 +736,17 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 			}
 
 			if request.State == "active" {
-				userInfo, err := cache.ReadStruct(request.InvitationKey)
+				userInfo, err := cache.ReadUser(request.InvitationKey)
 				if err != nil {
 					log.Error.Printf("Failed to read cached user data: %s", err)
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
 
-				err = cache.UpdateString(userInfo.IDNumber, request.ConnectionID)
-				if err != nil {
-					log.Error.Printf("Failed to cache connID %s", err)
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+				dobJSON, _ := time.Parse("2006-01-02", userInfo.DateOfBirth)
+				dob := dobJSON.Format("20060102")
+				idPhoto := utils.ImageBase64()
+				cd := time.Now().Format("20060102")
 
 				credentialRequest := models.IssueCredentialRequest{
 					AutoRemove:      false,
@@ -870,34 +763,50 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 						Type: "issue-credential/1.0/credential-preview",
 						Attributes: []models.Attribute{
 							{
-								Name:  "ID Number",
-								Value: userInfo.IDNumber,
+								Name:  "identity_number",
+								Value: userInfo.IdentityNumber,
 							},
 							{
-								Name:  "First Names",
-								Value: userInfo.FirstNames,
+								Name:  "names",
+								Value: userInfo.Names,
 							},
 							{
-								Name:  "Surname",
+								Name:  "surname",
 								Value: userInfo.Surname,
 							},
 							{
-								Name:  "Gender",
+								Name:  "gender",
 								Value: userInfo.Gender,
 							},
 							{
-								Name:  "Date of Birth",
-								Value: userInfo.DOB,
+								Name:  "date_of_birth",
+								Value: dob,
 							},
 							{
-								Name:  "Country of Birth",
+								Name:  "country_of_birth",
 								Value: userInfo.CountryOfBirth,
+							},
+							{
+								Name:  "nationality",
+								Value: userInfo.Nationality,
+							},
+							{
+								Name:  "citizen_status",
+								Value: userInfo.CitizenStatus,
+							},
+							{
+								Name:  "identity_photo",
+								Value: idPhoto,
+							},
+							{
+								Name:  "cred_date",
+								Value: cd,
 							},
 						},
 					},
 				}
 
-				_, err = client.IssueCredential(credentialRequest)
+				_, err = acapy.IssueCredential(credentialRequest)
 				if err != nil {
 					log.Error.Printf("Failed to send credential offer: %s", err)
 					w.WriteHeader(http.StatusBadRequest)
@@ -905,17 +814,16 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 				}
 
 				// For email credential notification
-				err = cache.UpdateStruct(request.ConnectionID, userInfo)
+				err = cache.User(request.ConnectionID, userInfo)
 				if err != nil {
 					log.Error.Printf("Failed to cache user data: %s", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
 
-				cache.DeleteStruct(request.InvitationKey)
+				cache.DeleteUser(request.InvitationKey)
 
 				log.Info.Println("Credential offer sent")
-				w.WriteHeader(http.StatusOK)
 			}
 
 		case "issue_credential":
@@ -927,7 +835,7 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 				return
 			}
 
-			userInfo, err := cache.ReadStruct(request.ConnectionID)
+			userInfo, err := cache.ReadUser(request.ConnectionID)
 			if err != nil {
 				log.Error.Printf("Failed to read cached user data: %s", err)
 				w.WriteHeader(http.StatusBadRequest)
@@ -937,7 +845,7 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 			if request.State == "credential_issued" && userInfo.Email != "" {
 				log.Info.Println("Sending credential issued notification...")
 
-				prefix := string(userInfo.IDNumber[6])
+				prefix := string(userInfo.IdentityNumber[6])
 				if prefix >= "5" {
 					prefix = "Mr "
 				} else {
@@ -951,18 +859,15 @@ func webhookEventsHandler(config *config.Config, client *client.Client, cache *u
 					return
 				}
 
-				cache.DeleteStruct(request.ConnectionID)
+				cache.DeleteUser(request.ConnectionID)
 
 				log.Info.Println("Notified user successfully about issued credential!")
-				w.WriteHeader(http.StatusOK)
 			}
 
 			if request.State == "credential_issued" {
 				txnCounterSwitch := config.GetTxnCounterSwitch()
 
-				if txnCounterSwitch == "0" {
-
-				} else if txnCounterSwitch == "1" {
+				if txnCounterSwitch == "1" {
 					log.Info.Println("Calling Transaction Counter")
 
 					txnID := utils.RandomTxnID(12)

@@ -12,7 +12,7 @@ Digital Identity is the identity use case of verifiable credentials as a impleme
 ├── cmd             // server entry point
 ├── deploy          // k8s aws deployment files
 ├── pkg
-│   ├── client      // ACA-py and DHA client functions
+│   ├── acapy       // ACA-py client functions
 │   ├── config      // config loading env variables
 │   ├── log         // logger
 │   ├── models      // all dto's

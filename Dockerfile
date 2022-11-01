@@ -11,5 +11,5 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/app /app
 ENTRYPOINT /app
-LABEL Name=cornerstone_issuer Version=0.0.5
+LABEL Name=cornerstone-issuer Version=0.2.0
 EXPOSE 8180

@@ -1,25 +1,21 @@
 package main
 
 import (
-	"cornerstone_issuer/api"
-	"cornerstone_issuer/pkg/client"
-	"cornerstone_issuer/pkg/config"
-	"cornerstone_issuer/pkg/log"
-	"cornerstone_issuer/pkg/server"
-	"cornerstone_issuer/pkg/utils"
-	"crypto/tls"
-	"net/http"
+	"cornerstone-issuer/api"
+	"cornerstone-issuer/pkg/acapy"
+	"cornerstone-issuer/pkg/config"
+	"cornerstone-issuer/pkg/log"
+	"cornerstone-issuer/pkg/server"
+	"cornerstone-issuer/pkg/utils"
 )
 
 func main() {
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 	runServer()
 }
 
 func runServer() {
 	config := config.LoadConfig()
-	acapyClient := client.NewClient(config.GetAcapyURL())
+	acapyClient := acapy.NewClient(config.GetAcapyURL())
 	cache := utils.NewBigCache()
 
 	srv := server.NewServer().

@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"cornerstone_issuer/pkg/log"
+	"cornerstone-issuer/pkg/log"
 )
 
 func GracefulServerExit(callback func()) {

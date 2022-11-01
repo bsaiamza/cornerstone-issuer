@@ -100,7 +100,7 @@ func citizenshipCheck(id, countryOfBirth string) error {
 		return fmt.Errorf("invalid citizenship status")
 	}
 
-	if !(citizen == "0" && countryOfBirth == "South Africa") {
+	if !(citizen == "0" && countryOfBirth == "RSA") {
 		return fmt.Errorf("invalid citizenship status")
 	}
 

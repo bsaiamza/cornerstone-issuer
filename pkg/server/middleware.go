@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"cornerstone_issuer/pkg/log"
+	"cornerstone-issuer/pkg/log"
 )
 
 type Middleware func(http.HandlerFunc) http.HandlerFunc

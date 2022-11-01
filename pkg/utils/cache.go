@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"cornerstone_issuer/pkg/log"
-	"cornerstone_issuer/pkg/models"
+	"cornerstone-issuer/pkg/log"
+	"cornerstone-issuer/pkg/models"
 
 	"github.com/allegro/bigcache/v3"
 )
@@ -65,7 +65,7 @@ func NewBigCache() *BigCache {
 	}
 }
 
-func (bc *BigCache) UpdateString(key, entry string) error {
+func (bc *BigCache) String(key, entry string) error {
 	bs, err := json.Marshal(entry)
 	if err != nil {
 		log.ServerError.Printf("Failed to marshal string cache: %s", err.Error())
@@ -74,7 +74,7 @@ func (bc *BigCache) UpdateString(key, entry string) error {
 	return bc.stringData.Set(key, bs)
 }
 
-func (bc *BigCache) UpdateStruct(key string, entry models.CornerstoneCredentialRequest) error {
+func (bc *BigCache) User(key string, entry models.CornerstoneCredentialRequest) error {
 	bs, err := json.Marshal(&entry)
 	if err != nil {
 		log.ServerError.Printf("Failed to marshal struct cache: %s", err.Error())
@@ -102,7 +102,7 @@ func (bc *BigCache) ReadString(key string) (string, error) {
 	return entryData, nil
 }
 
-func (bc *BigCache) ReadStruct(key string) (models.CornerstoneCredentialRequest, error) {
+func (bc *BigCache) ReadUser(key string) (models.CornerstoneCredentialRequest, error) {
 	bs, err := bc.structData.Get(key)
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {
@@ -125,6 +125,6 @@ func (bc *BigCache) DeleteString(key string) {
 	bc.stringData.Delete(key)
 }
 
-func (bc *BigCache) DeleteStruct(key string) {
+func (bc *BigCache) DeleteUser(key string) {
 	bc.structData.Delete(key)
 }

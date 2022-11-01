@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cornerstone-issuer-configmap
+  namespace: cornerstone-issuer
+data:
+  # acapy variables
+  ACAPY_URL: "http://cornerstone-issuer-agent.cornerstone-issuer.svc.cluster.local:8001"
+  SCHEMA_ID: "BER7WwiAMK9igkiRjPYpEp:2:Cornerstone_Credential:3.0"
+  SCHEMA_NAME: "Cornerstone_Credential"
+  SCHEMA_VERSION: "3.0"
+  CRED_DEF_ID: "BER7WwiAMK9igkiRjPYpEp:3:CL:59781:Cornerstone"
+  PUBLIC_DID: "BER7WwiAMK9igkiRjPYpEp"
+  # server variables
+  SERVER_ADDRESS: 0.0.0.0:8180
+  # DHA variables
+  # DHA_API: "https://npr-prod.dha.gov.za:8093/NATCGI/BVRSTEST/NWWAPS/SYSWEB/WEB046N?IDNO=" # test env
+  DHA_API: "https://npr-prod.dha.gov.za:8094/NATCGI/BVRSLIVE/NWWAPS/SYSWEB/WEB046N?IDNO="
+  DHA_SIMULATOR_API: "http://dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="
+  DHA_API_SWITCH: "2"
+  # txn counter variables
+  TXN_COUNTER_API: "https://issuer-cntr.iamza-sandbox.com/issuer/submit?payload="
+  TXN_COUNTER_SWITCH: "1"

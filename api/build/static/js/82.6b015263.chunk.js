@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkcornerstone_issuer=self.webpackChunkcornerstone_issuer||[]).push([[82],{3058:function(e,n,r){r.r(n),r.d(n,{default:function(){return i}});r(2791);var s=r(6015),t=r.p+"static/media/Error404.9aeb48a46e9bd043762f.png",c=r(184),i=function(){return(0,c.jsx)(s.Z,{sx:{flexGrow:1,display:"flex",justifyContent:"center",alignItems:"center"},children:(0,c.jsx)("img",{src:t,alt:"404"})})}}}]);
+//# sourceMappingURL=82.6b015263.chunk.js.map

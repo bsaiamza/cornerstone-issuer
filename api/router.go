@@ -6,9 +6,9 @@ import (
 	"io/fs"
 	"net/http"
 
-	"cornerstone_issuer/pkg/client"
-	"cornerstone_issuer/pkg/config"
-	"cornerstone_issuer/pkg/utils"
+	"cornerstone-issuer/pkg/acapy"
+	"cornerstone-issuer/pkg/config"
+	"cornerstone-issuer/pkg/utils"
 
 	"github.com/gorilla/mux"
 )
@@ -16,16 +16,13 @@ import (
 //go:embed build
 var embeddedFiles embed.FS
 
-func NewRouter(config *config.Config, client *client.Client, cache *utils.BigCache) *mux.Router {
+func NewRouter(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) *mux.Router {
 	r := mux.NewRouter()
 
-	path := r.PathPrefix("/api/v1/cornerstone-issuer").Subrouter()
-	path.HandleFunc("/health", health(config))
-	path.HandleFunc("/connections", listConnections(config, client))
-	path.HandleFunc("/credentials", listCredentials(config, client))
-	path.HandleFunc("/credential", getCredential(config, client, cache))
-	path.HandleFunc("/credential-email", getCredentialByEmail(config, client, cache))
-	path.HandleFunc("/topic/{topic}/", webhookEvents(config, client, cache))
+	path := r.PathPrefix("/api/v2/cornerstone-issuer").Subrouter()
+	path.HandleFunc("/credential", getCredential(config, acapy, cache))
+	path.HandleFunc("/email-credential", getCredentialByEmail(config, acapy, cache))
+	path.HandleFunc("/topic/{topic}/", webhookEvents(config, acapy, cache))
 
 	r.PathPrefix("/").Handler(http.FileServer(getFileSystem()))
 

@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"cornerstone_issuer/pkg/config"
-	"cornerstone_issuer/pkg/log"
+	"cornerstone-issuer/pkg/config"
+	"cornerstone-issuer/pkg/log"
 
 	mailV2 "github.com/xhit/go-simple-mail/v2"
 )
