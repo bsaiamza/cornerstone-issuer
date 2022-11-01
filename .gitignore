@@ -27,3 +27,5 @@ web/package-lock.json
 bin/
 web/node_modules/
 web/build/
+api/build/
+
