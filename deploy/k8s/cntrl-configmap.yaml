@@ -17,7 +17,7 @@ data:
   # DHA variables
   # DHA_API: "https://npr-prod.dha.gov.za:8093/NATCGI/BVRSTEST/NWWAPS/SYSWEB/WEB046N?IDNO=" # test env
   DHA_API: "https://npr-prod.dha.gov.za:8094/NATCGI/BVRSLIVE/NWWAPS/SYSWEB/WEB046N?IDNO="
-  DHA_SIMULATOR_API: "http://dha-api-redis.app.svc.cluster.local:8021/redis/getIDRecord?id="
+  DHA_SIMULATOR_API: "http://dha-api-postgres.app.svc.cluster.local:8021/postgres/getIDRecord?id="
   DHA_API_SWITCH: "2"
   # txn counter variables
   TXN_COUNTER_API: "https://issuer-cntr.iamza-sandbox.com/issuer/submit?payload="

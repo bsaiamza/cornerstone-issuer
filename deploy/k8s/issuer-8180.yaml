@@ -8,7 +8,7 @@
 
 ---
 # https://issuer.iamza-sandbox.com
-# k8s-cornerst-cornerst-84742d4fd7
+# k8s-cornerst-cornerst-84742d4fad7
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
