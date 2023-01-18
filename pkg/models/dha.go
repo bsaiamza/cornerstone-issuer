@@ -1,14 +1,12 @@
 package models
 
+import "encoding/xml"
+
 type DHAResponse struct {
-	Root Root `xml:"ROOT"`
+	XMLName xml.Name `xml:"ROOT"`
+	Error   string   `xml:"ERROR"`
+	Person  Person   `xml:"PERSON"`
 }
-
-type Root struct {
-	Error  string `xml:"ERROR"`
-	Person Person `xml:"PERSON"`
-}
-
 type Person struct {
 	IDNumber       string `xml:"IDNUMBER"`
 	NewIDNo        string `xml:"NEWIDNO"`

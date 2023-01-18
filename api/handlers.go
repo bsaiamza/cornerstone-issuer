@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"cornerstone-issuer/pkg/server"
 	"cornerstone-issuer/pkg/utils"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/skip2/go-qrcode"
 )
@@ -28,6 +30,7 @@ func getCredential(config *config.Config, acapy *acapy.Client, cache *utils.BigC
 
 	return server.ChainMiddleware(getCredentialHandler(config, acapy, cache), mdw...)
 }
+
 func getCredentialHandler(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
@@ -116,20 +119,21 @@ func getCredentialHandler(config *config.Config, acapy *acapy.Client, cache *uti
 			fmt.Println("DHA API response: ", string(body))
 
 			var dhaData models.DHAResponse
-			err = xml.NewDecoder(resp.Body).Decode(&dhaData)
+			// err = xml.NewDecoder(resp.Body).Decode(&dhaData)
+			err = xml.Unmarshal(body, &dhaData)
 			if err != nil {
 				log.Error.Printf("Failed to decode DHA API response: %s", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
 					"success": false,
-					"msg":     "Failed on DHA API call: Service unavailable!",
+					"msg":     "ID number not found!",
 				}
 				json.NewEncoder(w).Encode(res)
 				return
 			}
 
 			// Check death status
-			if dhaData.Root.Person.DeathStatus == "DEAD" {
+			if dhaData.Person.DeathStatus == "DEAD" {
 				log.Error.Println("Failed: user is deceased!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -141,19 +145,22 @@ func getCredentialHandler(config *config.Config, acapy *acapy.Client, cache *uti
 			}
 
 			// dha
-			dhaID := dhaData.Root.Person.IDNumber
-			dhaNames := strings.ToLower(dhaData.Root.Person.Names)
-			dhaSurname := strings.ToLower(dhaData.Root.Person.Surname)
-			dhaGender := strings.ToLower(dhaData.Root.Person.Gender)
-			dhaNationality := strings.ToLower(dhaData.Root.Person.Nationality)
-			dhaCOB := dhaData.Root.Person.BirthPlace
+			dhaID := dhaData.Person.IDNumber
+			dhaNames := strings.ToLower(dhaData.Person.Names)
+			dhaSurname := strings.ToLower(dhaData.Person.Surname)
+			dhaGender := strings.ToLower(dhaData.Person.Gender)
+			// dhaNationality := strings.ToLower(dhaData.Root.Person.Nationality)
+			dhaCOB := dhaData.Person.BirthPlace
+			if dhaCOB == "SOUTH AFRICA" {
+				dhaCOB = "RSA"
+			}
 
 			// user
 			userNames := strings.ToLower(userInfo.Names)
 			userSurname := strings.ToLower(userInfo.Surname)
-			userGender := strings.ToLower(string(userInfo.Gender[0]))
-			userNationality := strings.ToLower(userInfo.Nationality)
-			userCOB := ""
+			userGender := strings.ToLower(userInfo.Gender)
+			// userNationality := strings.ToLower(userInfo.Nationality)
+			userCOB := userInfo.CountryOfBirth
 			if userInfo.CountryOfBirth == "South Africa" {
 				userCOB = "RSA"
 			}
@@ -165,12 +172,12 @@ func getCredentialHandler(config *config.Config, acapy *acapy.Client, cache *uti
 			fmt.Println("Names: " + dhaNames + " - " + userNames)
 			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
 			fmt.Println("Gender: " + dhaGender + " - " + userGender)
-			fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
+			// fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
 			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
 			fmt.Println("\n")
 
 			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-				dhaGender == userGender && dhaNationality == userNationality && dhaCOB == userCOB) {
+				dhaGender == userGender /*&& dhaNationality == userNationality*/ && dhaCOB == userCOB) {
 				log.Error.Println("Failed: user data does not match DHA data!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -260,7 +267,7 @@ func getCredentialHandler(config *config.Config, acapy *acapy.Client, cache *uti
 			userGender := strings.ToLower(string(userInfo.Gender[0]))
 			userDOB := string(userInfo.DateOfBirth[0:4]) + "/" + string(userInfo.DateOfBirth[5:7]) + "/" + string(userInfo.DateOfBirth[8:10])
 			userCOB := userInfo.CountryOfBirth
-			if userInfo.CountryOfBirth == "South Africa" {
+			if userCOB == "South Africa" {
 				userCOB = "RSA"
 			}
 			userNationality := userInfo.Nationality
@@ -333,6 +340,7 @@ func getCredentialByEmail(config *config.Config, acapy *acapy.Client, cache *uti
 
 	return server.ChainMiddleware(getCredentialByEmailHandler(config, acapy, cache), mdw...)
 }
+
 func getCredentialByEmailHandler(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
@@ -434,20 +442,21 @@ func getCredentialByEmailHandler(config *config.Config, acapy *acapy.Client, cac
 			fmt.Println("DHA API response: ", string(body))
 
 			var dhaData models.DHAResponse
-			err = xml.NewDecoder(resp.Body).Decode(&dhaData)
+			// err = xml.NewDecoder(resp.Body).Decode(&dhaData)
+			err = xml.Unmarshal(body, &dhaData)
 			if err != nil {
 				log.Error.Printf("Failed to decode DHA API response: %s", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
 					"success": false,
-					"msg":     "Failed on DHA API call: Service unavailable!",
+					"msg":     "ID number not found!",
 				}
 				json.NewEncoder(w).Encode(res)
 				return
 			}
 
 			// Check death status
-			if dhaData.Root.Person.DeathStatus == "DEAD" {
+			if dhaData.Person.DeathStatus == "DEAD" {
 				log.Error.Println("Failed: user is deceased!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -459,19 +468,22 @@ func getCredentialByEmailHandler(config *config.Config, acapy *acapy.Client, cac
 			}
 
 			// dha
-			dhaID := dhaData.Root.Person.IDNumber
-			dhaNames := strings.ToLower(dhaData.Root.Person.Names)
-			dhaSurname := strings.ToLower(dhaData.Root.Person.Surname)
-			dhaGender := strings.ToLower(dhaData.Root.Person.Gender)
-			dhaNationality := strings.ToLower(dhaData.Root.Person.Nationality)
-			dhaCOB := dhaData.Root.Person.BirthPlace
+			dhaID := dhaData.Person.IDNumber
+			dhaNames := strings.ToLower(dhaData.Person.Names)
+			dhaSurname := strings.ToLower(dhaData.Person.Surname)
+			dhaGender := strings.ToLower(dhaData.Person.Gender)
+			// dhaNationality := strings.ToLower(dhaData.Root.Person.Nationality)
+			dhaCOB := dhaData.Person.BirthPlace
+			if dhaCOB == "SOUTH AFRICA" {
+				dhaCOB = "RSA"
+			}
 
 			// user
 			userNames := strings.ToLower(userInfo.Names)
 			userSurname := strings.ToLower(userInfo.Surname)
-			userGender := strings.ToLower(string(userInfo.Gender[0]))
-			userNationality := strings.ToLower(userInfo.Nationality)
-			userCOB := ""
+			userGender := strings.ToLower(userInfo.Gender)
+			// userNationality := strings.ToLower(userInfo.Nationality)
+			userCOB := userInfo.CountryOfBirth
 			if userInfo.CountryOfBirth == "South Africa" {
 				userCOB = "RSA"
 			}
@@ -483,12 +495,12 @@ func getCredentialByEmailHandler(config *config.Config, acapy *acapy.Client, cac
 			fmt.Println("Names: " + dhaNames + " - " + userNames)
 			fmt.Println("Surname: " + dhaSurname + " - " + userSurname)
 			fmt.Println("Gender: " + dhaGender + " - " + userGender)
-			fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
+			// fmt.Println("Nationality: " + dhaNationality + " - " + userNationality)
 			fmt.Println("Country: " + dhaCOB + " - " + userCOB)
 			fmt.Println("\n")
 
 			if !(dhaID == userID && dhaNames == userNames && dhaSurname == userSurname &&
-				dhaGender == userGender && dhaNationality == userNationality && dhaCOB == userCOB) {
+				dhaGender == userGender /*&& dhaNationality == userNationality*/ && dhaCOB == userCOB) {
 				log.Error.Println("Failed: user data does not match DHA data!")
 				w.WriteHeader(http.StatusInternalServerError)
 				res := server.Response{
@@ -685,6 +697,7 @@ func webhookEvents(config *config.Config, acapy *acapy.Client, cache *utils.BigC
 
 	return server.ChainMiddleware(webhookEventsHandler(config, acapy, cache), mdw...)
 }
+
 func webhookEventsHandler(config *config.Config, acapy *acapy.Client, cache *utils.BigCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := w.Header()
@@ -872,12 +885,19 @@ func webhookEventsHandler(config *config.Config, acapy *acapy.Client, cache *uti
 
 					txnID := utils.RandomTxnID(12)
 
-					p1 := "%7B%22WriterDID%22%3A%20%22BER7WwiAMK9igkiRjPYpEp%22%2C%22WriterDomain%22%3A%20%22IAMZA%20Cornerstone%20Issuer%22%2C%22WriterMetaData%22%3A%20%7B%22txnid%22%3A%20%22"
-					p2 := "%22%7D%7D"
+					did := "BER7WwiAMK9igkiRjPYpEp"
+					domain := "IAMZA Cornerstone Issuer"
+					notes := map[string]interface{}{
+						"txnid": txnID,
+					}
 
-					payload := p1 + txnID + p2
+					token, err := utils.CreateToken(jwt.SigningMethodRS256, did, domain, notes, config.GetTxnCounterPK())
+					if err != nil {
+						log.Error.Printf("Failed to create jwt: %s", err)
+						return
+					}
 
-					url := config.GetTxnCounterAPI() + payload
+					url := config.GetTxnCounterAPI() + token
 
 					req, err := http.NewRequest("POST", url, nil)
 					if err != nil {
@@ -887,17 +907,42 @@ func webhookEventsHandler(config *config.Config, acapy *acapy.Client, cache *uti
 
 					req.Header.Add("Content-Type", "application/json")
 
-					res, err := http.DefaultClient.Do(req)
+					n, err := strconv.Atoi(config.GetTxnCounterLoopN())
 					if err != nil {
-						log.Error.Printf("Failed on Transaction Counter API call: %s", err)
+						log.Error.Printf("Failed to parse loop n: %s", err)
 						return
 					}
 
-					defer res.Body.Close()
-					body, _ := ioutil.ReadAll(res.Body)
+					if config.GetTxnCounterLoopSwitch() == "1" {
+						log.Info.Printf("Looping Txn Counter %d times", n)
 
-					fmt.Println("\n")
-					fmt.Println("Transaction Counter API response: ", string(body))
+						for i := 0; i <= n; i++ {
+							res, err := http.DefaultClient.Do(req)
+							if err != nil {
+								log.Error.Printf("Failed on Transaction Counter API call: %s", err)
+								return
+							}
+
+							defer res.Body.Close()
+							body, _ := ioutil.ReadAll(res.Body)
+
+							fmt.Println("\n")
+							fmt.Println("Transaction Counter API response: ", string(body))
+						}
+					} else {
+						res, err := http.DefaultClient.Do(req)
+						if err != nil {
+							log.Error.Printf("Failed on Transaction Counter API call: %s", err)
+							return
+						}
+
+						defer res.Body.Close()
+						body, _ := ioutil.ReadAll(res.Body)
+
+						fmt.Println("\n")
+						fmt.Println("Transaction Counter API response: ", string(body))
+					}
+
 				}
 			}
 

@@ -4,8 +4,7 @@ import (
 	"os"
 )
 
-type Config struct {
-}
+type Config struct{}
 
 func LoadConfig() *Config {
 	return &Config{}
@@ -77,4 +76,16 @@ func (c *Config) GetTxnCounterAPI() string {
 
 func (c *Config) GetTxnCounterSwitch() string {
 	return getEnvVarByName("TXN_COUNTER_SWITCH")
+}
+
+func (c *Config) GetTxnCounterPK() string {
+	return getEnvVarByName("TXN_COUNTER_PK")
+}
+
+func (c *Config) GetTxnCounterLoopSwitch() string {
+	return getEnvVarByName("TXN_COUNTER_LOOP_SWITCH")
+}
+
+func (c *Config) GetTxnCounterLoopN() string {
+	return getEnvVarByName("TXN_COUNTER_LOOP_N")
 }
