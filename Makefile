@@ -1,10 +1,10 @@
 # docker commands
 build_docker:
-	docker build -t cornerstone-issuer:0.2.0 .
-	docker tag cornerstone-issuer:0.2.0 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.2.0
+	docker build -t cornerstone-issuer:latest .
+	docker tag cornerstone-issuer:latest 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:latest
 
 push_docker:
-	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:0.2.0
+	docker push 149875424875.dkr.ecr.af-south-1.amazonaws.com/cornerstone-issuer:latest
 
 # golang commands
 fmt:

@@ -25,6 +25,7 @@ web/package-lock.json
 # Folders
 .vscode/
 bin/
+docs/
 web/node_modules/
 web/build/
 api/build/
